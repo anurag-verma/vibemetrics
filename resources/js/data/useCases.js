@@ -1,0 +1,78 @@
+export const useCases = [
+    {
+        slug: 'saas',
+        label: 'SaaS',
+        eyebrow: 'For product teams',
+        title: 'Analytics built for SaaS growth',
+        summary: 'Track signups, feature pages, and onboarding funnels across every product you ship — from one privacy-first dashboard.',
+        description: 'SaaS teams need to know which pages convert, which features get used, and which campaigns bring qualified signups. VibeMetrics gives you honest traffic data without cookie banners slowing down your funnel.',
+        icon: 'rocket',
+        color: 'bg-indigo-50 text-indigo-600',
+        accent: 'indigo',
+        highlights: [
+            { title: 'Signup page performance', description: 'See which landing pages and pricing views drive the most account creations.' },
+            { title: 'Feature adoption pages', description: 'Track visits to docs, onboarding, and in-app routes with SPA support built in.' },
+            { title: 'Campaign attribution', description: 'UTM parameters captured automatically so you know which channels convert.' },
+            { title: 'Live visitor pulse', description: 'Watch real-time traffic during launches without invasive tracking scripts.' },
+        ],
+        outcomes: ['Understand what drives signups', 'Measure launch-day traffic', 'Compare channel ROI', 'Report without GDPR friction'],
+    },
+    {
+        slug: 'ecommerce',
+        label: 'E-commerce',
+        eyebrow: 'For online stores',
+        title: 'Know what drives purchases',
+        summary: 'See top product pages, campaign referrers, and UTM performance without cookie banners or consent popups.',
+        description: 'E-commerce brands need clear visibility into product page traffic, seasonal campaigns, and referrer quality. VibeMetrics keeps analytics lightweight and privacy-friendly while your store stays fast.',
+        icon: 'chart',
+        color: 'bg-rose-50 text-rose-600',
+        accent: 'rose',
+        highlights: [
+            { title: 'Top product pages', description: 'Identify bestsellers and underperforming categories from real pageview data.' },
+            { title: 'Referrer breakdown', description: 'See whether social, search, or email sends the traffic that matters.' },
+            { title: 'UTM campaign tracking', description: 'Tag seasonal promos and paid ads to compare performance side by side.' },
+            { title: 'No cookie consent wall', description: 'Cookieless tracking means fewer popups and a smoother checkout experience.' },
+        ],
+        outcomes: ['Spot high-traffic products', 'Optimize campaign spend', 'Track seasonal spikes', 'Keep storefronts fast'],
+    },
+    {
+        slug: 'blogs',
+        label: 'Blogs',
+        eyebrow: 'For creators & publishers',
+        title: 'Measure content that resonates',
+        summary: 'Track top posts, referrer sources, and reader trends with a lightweight script that never slows your site.',
+        description: 'Writers and publishers care about which articles pull readers in and where those readers come from. VibeMetrics is the simple analytics layer for blogs that respect visitor privacy.',
+        icon: 'page',
+        color: 'bg-amber-50 text-amber-600',
+        accent: 'amber',
+        highlights: [
+            { title: 'Top posts report', description: 'See which articles earn the most views over any date range.' },
+            { title: 'Referrer sources', description: 'Learn whether readers arrive from search, newsletters, or social.' },
+            { title: 'Under 2KB script', description: 'A tiny tracker that will not hurt Core Web Vitals or reader experience.' },
+            { title: 'Daily trend lines', description: 'Spot spikes when a post goes viral or a newsletter goes out.' },
+        ],
+        outcomes: ['Double down on winning topics', 'Understand reader sources', 'Ship faster pages', 'Skip complex analytics setup'],
+    },
+    {
+        slug: 'agencies',
+        label: 'Agencies',
+        eyebrow: 'For client services',
+        title: 'Report across every client',
+        summary: 'Multi-site dashboards, CSV exports, and clean tenant isolation for professional client reporting.',
+        description: 'Agencies juggle dozens of client sites and need analytics that are easy to share, export, and trust. VibeMetrics keeps each client workspace isolated while giving your team one login.',
+        icon: 'sites',
+        color: 'bg-violet-50 text-violet-600',
+        accent: 'violet',
+        highlights: [
+            { title: 'Multi-site management', description: 'Add every client domain and switch between dashboards in seconds.' },
+            { title: 'CSV exports', description: 'Download pageview and referrer reports for monthly client deliverables.' },
+            { title: 'Tenant isolation', description: 'Strict separation between customer data keeps agency workflows clean.' },
+            { title: 'Privacy-first positioning', description: 'Offer clients GDPR-friendly analytics they can feel good about.' },
+        ],
+        outcomes: ['Centralize client reporting', 'Export data on demand', 'Onboard clients quickly', 'Differentiate with privacy'],
+    },
+];
+
+export const useCaseBySlug = (slug) => useCases.find((item) => item.slug === slug) ?? null;
+
+export const useCaseSlugs = () => useCases.map((item) => item.slug);
