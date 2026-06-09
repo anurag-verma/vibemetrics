@@ -16,15 +16,25 @@ class TimezoneList
             return false;
         }
 
-        return in_array($timezone, self::identifiers(), true);
+        try {
+            new \DateTimeZone($timezone);
+
+            return true;
+        } catch (\Exception) {
+            return false;
+        }
     }
 
     public static function resolve(?string $timezone, string $fallback = 'UTC'): string
     {
         if (self::isValid($timezone)) {
-            return $timezone;
+            return (new \DateTimeZone((string) $timezone))->getName();
         }
 
-        return self::isValid($fallback) ? $fallback : 'UTC';
+        if (self::isValid($fallback)) {
+            return (new \DateTimeZone($fallback))->getName();
+        }
+
+        return 'UTC';
     }
 }

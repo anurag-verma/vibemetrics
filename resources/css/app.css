@@ -402,6 +402,32 @@
         caret-color: #44403c;
     }
 
+    /* Auth/guest pages are always light-themed, even when the app uses dark mode. */
+    .guest-layout input.vm-input:not([type='checkbox']):not([type='radio']):not([type='range']),
+    .guest-layout textarea.vm-input,
+    .guest-layout select.vm-input {
+        border-color: #cbd5e1 !important;
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+    }
+
+    .guest-layout input.vm-input:not([type='checkbox']):not([type='radio']):not([type='range'])::placeholder,
+    .guest-layout textarea.vm-input::placeholder {
+        color: #94a3b8 !important;
+    }
+
+    .guest-layout input.vm-input:-webkit-autofill,
+    .guest-layout input.vm-input:-webkit-autofill:hover,
+    .guest-layout input.vm-input:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+        -webkit-text-fill-color: #0f172a !important;
+        caret-color: #0f172a;
+    }
+
+    .guest-layout label {
+        color: #374151 !important;
+    }
+
     .vm-page-header {
         @apply mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between;
     }

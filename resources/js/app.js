@@ -43,7 +43,8 @@ router.on('success', (event) => syncDisplayName(event.detail.page));
 router.on('invalid', (event) => {
     if (event.detail.response?.status === 419) {
         event.preventDefault();
-        window.location.assign('/login');
+        const loginUrl = typeof route === 'function' ? route('login') : '/login';
+        window.location.assign(loginUrl);
     }
 });
 

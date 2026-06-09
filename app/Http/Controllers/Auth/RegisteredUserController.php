@@ -10,7 +10,6 @@ use App\Support\TimezoneList;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
@@ -38,7 +37,7 @@ class RegisteredUserController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'timezone' => TimezoneList::resolve($validated['timezone'] ?? null),
-            'password' => Hash::make($validated['password']),
+            'password' => $validated['password'],
         ]);
 
         event(new Registered($user));

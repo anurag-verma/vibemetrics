@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="description" content="{{ $branding['appName'] }} — Privacy-first web analytics. No cookies, no IP storage, just clean insights.">
         <meta name="theme-color" content="{{ $branding['primaryColor'] }}">
 

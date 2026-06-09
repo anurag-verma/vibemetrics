@@ -5,6 +5,7 @@ namespace App\Http\Requests\Auth;
 use App\Models\User;
 use App\Rules\PersonName;
 use App\Rules\Timezone;
+use App\Support\TimezoneList;
 use App\Support\ValidationHelpers;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules;
@@ -29,10 +30,18 @@ class RegisterUserRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $merge = [];
+
         if ($this->has('name')) {
-            $this->merge([
-                'name' => ValidationHelpers::normalizePersonName($this->input('name')),
-            ]);
+            $merge['name'] = ValidationHelpers::normalizePersonName($this->input('name'));
+        }
+
+        if ($this->has('timezone')) {
+            $merge['timezone'] = TimezoneList::resolve($this->input('timezone'));
+        }
+
+        if ($merge !== []) {
+            $this->merge($merge);
         }
     }
 }

@@ -57,6 +57,27 @@ class RegistrationValidationTest extends TestCase
         $this->assertAuthenticated();
     }
 
+    public function test_registration_accepts_deprecated_browser_timezone(): void
+    {
+        Notification::fake();
+
+        $response = $this->post('/register', [
+            'name' => 'Test User',
+            'email' => 'deprecated-tz@example.com',
+            'password' => self::VALID_PASSWORD,
+            'password_confirmation' => self::VALID_PASSWORD,
+            'timezone' => 'Asia/Calcutta',
+        ]);
+
+        $response->assertRedirect(route('verification.notice', absolute: false));
+        $this->assertAuthenticated();
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'deprecated-tz@example.com',
+            'timezone' => 'Asia/Calcutta',
+        ]);
+    }
+
     public function test_registration_rejects_weak_password(): void
     {
         Notification::fake();

@@ -16,10 +16,19 @@ const onInput = (event) => {
     model.value = event.target.value;
 };
 
+const syncAutofill = () => {
+    if (input.value && input.value.value !== model.value) {
+        model.value = input.value.value;
+    }
+};
+
 onMounted(() => {
     if (input.value?.hasAttribute('autofocus')) {
         input.value.focus();
     }
+
+    syncAutofill();
+    window.setTimeout(syncAutofill, 100);
 });
 
 defineExpose({ focus: () => input.value?.focus() });
@@ -32,5 +41,6 @@ defineExpose({ focus: () => input.value?.focus() });
         class="vm-input rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
         v-bind="$attrs"
         @input="onInput"
+        @change="onInput"
     />
 </template>

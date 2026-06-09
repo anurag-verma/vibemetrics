@@ -8,7 +8,7 @@ const currentYear = useCurrentYear();
 </script>
 
 <template>
-    <div class="flex min-h-screen flex-col items-center bg-gradient-to-br from-slate-50 via-white to-indigo-50/50 px-4 pt-8 sm:justify-center sm:pt-0">
+    <div class="guest-layout flex min-h-screen flex-col items-center bg-gradient-to-br from-slate-50 via-white to-indigo-50/50 px-4 pt-8 sm:justify-center sm:pt-0">
         <FlashToast />
         <div class="mb-8">
             <Logo size="lg" href="/" />
