@@ -40,7 +40,7 @@ const formatLabel = (label) => {
     if (props.labelType === 'path' || props.labelType === 'auto') {
         try {
             const url = new URL(label);
-            return url.pathname + url.search;
+            return url.pathname + url.search + url.hash;
         } catch {
             // fall through
         }

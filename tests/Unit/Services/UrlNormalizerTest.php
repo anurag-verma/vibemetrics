@@ -34,9 +34,13 @@ class UrlNormalizerTest extends TestCase
                 'https://example.com/',
                 'https://example.com/',
             ],
-            'strip hash' => [
+            'keeps hash' => [
                 'https://example.com/page#section',
-                'https://example.com/page',
+                'https://example.com/page#section',
+            ],
+            'root hash path' => [
+                'https://example.com/#contact',
+                'https://example.com/#contact',
             ],
             'keeps query' => [
                 'https://Example.com/Page?ref=1',

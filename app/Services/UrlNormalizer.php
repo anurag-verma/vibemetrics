@@ -25,7 +25,8 @@ class UrlNormalizer
         }
 
         $query = isset($parts['query']) && $parts['query'] !== '' ? '?'.$parts['query'] : '';
+        $hash = isset($parts['fragment']) && $parts['fragment'] !== '' ? '#'.$parts['fragment'] : '';
 
-        return mb_substr("{$scheme}://{$host}{$path}{$query}", 0, 2048);
+        return mb_substr("{$scheme}://{$host}{$path}{$query}{$hash}", 0, 2048);
     }
 }

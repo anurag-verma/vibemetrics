@@ -43,10 +43,16 @@
         return utm;
     }
 
+    var lastUrl = null;
+
     function track() {
+        var url = window.location.href;
+        if (url === lastUrl) return;
+        lastUrl = url;
+
         var payload = {
             tracking_id: trackingId,
-            url: window.location.href,
+            url: url,
             referrer: document.referrer || null,
             device: inferDevice(),
             visitor_id: getVisitorId(),
@@ -69,6 +75,20 @@
             mode: 'cors',
         }).catch(function () {});
     }
+
+    function patchHistory(method) {
+        var original = history[method];
+        history[method] = function () {
+            var result = original.apply(this, arguments);
+            track();
+            return result;
+        };
+    }
+
+    patchHistory('pushState');
+    patchHistory('replaceState');
+    window.addEventListener('popstate', track);
+    window.addEventListener('hashchange', track);
 
     if (document.readyState === 'complete') {
         track();
