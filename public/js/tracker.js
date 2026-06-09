@@ -45,6 +45,14 @@
 
     var lastUrl = null;
 
+    function isSameOriginCollect() {
+        try {
+            return new URL(apiHost).origin === window.location.origin;
+        } catch (e) {
+            return false;
+        }
+    }
+
     function track() {
         var url = window.location.href;
         if (url === lastUrl) return;
@@ -62,7 +70,7 @@
 
         var body = JSON.stringify(payload);
 
-        if (navigator.sendBeacon) {
+        if (isSameOriginCollect() && navigator.sendBeacon) {
             var blob = new Blob([body], { type: 'application/json' });
             if (navigator.sendBeacon(apiHost + '/api/collect', blob)) return;
         }
@@ -73,6 +81,7 @@
             body: body,
             keepalive: true,
             mode: 'cors',
+            credentials: 'omit',
         }).catch(function () {});
     }
 
