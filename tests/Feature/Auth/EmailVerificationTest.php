@@ -43,6 +43,17 @@ class EmailVerificationTest extends TestCase
         $response->assertRedirect(route('getting-started', absolute: false));
     }
 
+    public function test_verification_email_renders_without_error(): void
+    {
+        config(['mail.default' => 'array']);
+
+        $user = User::factory()->unverified()->create();
+
+        $user->sendEmailVerificationNotification();
+
+        $this->assertTrue(true);
+    }
+
     public function test_verification_email_is_sent_when_user_registers(): void
     {
         Notification::fake();

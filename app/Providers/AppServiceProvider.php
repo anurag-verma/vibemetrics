@@ -47,14 +47,16 @@ class AppServiceProvider extends ServiceProvider
                 : $rule;
         });
 
+        $branding = fn (): array => app(BrandingService::class)->toArray();
+
         View::composer([
             'app',
             'errors.*',
-            'vendor.mail.html.message',
-            'vendor.mail.html.layout',
-            'vendor.mail.text.message',
-        ], function ($view) {
-            $view->with('branding', app(BrandingService::class)->toArray());
+            'mail::*',
+            'vendor.mail.*',
+            'vendor.notifications.*',
+        ], function ($view) use ($branding): void {
+            $view->with('branding', $branding());
         });
     }
 }

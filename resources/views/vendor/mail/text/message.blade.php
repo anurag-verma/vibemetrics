@@ -1,3 +1,6 @@
+@php
+    $branding = $branding ?? app(\App\Services\BrandingService::class)->toArray();
+@endphp
 <x-mail::layout>
     {{-- Header --}}
     <x-slot:header>
