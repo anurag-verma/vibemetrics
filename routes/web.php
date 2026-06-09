@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\HealthController as AdminHealthController;
+use App\Http\Controllers\Admin\LogController as AdminLogController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
 use App\Http\Controllers\Admin\SiteController as AdminSiteController;
@@ -63,7 +64,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/sites/{site}', [SiteController::class, 'destroy'])->name('sites.destroy');
 
     Route::get('/sites/{site}', [DashboardController::class, 'show'])->name('sites.show');
-    Route::get('/sites/{site}/export', [ExportController::class, 'show'])->name('sites.export');
+    Route::get('/sites/{site}/export', [ExportController::class, 'show'])
+        ->middleware('throttle:10,1')
+        ->name('sites.export');
 
     Route::get('/sites/{site}/edit', [SiteSettingsController::class, 'edit'])->name('sites.edit');
     Route::redirect('/sites/{site}/settings', '/sites/{site}/edit')->name('sites.settings');
@@ -79,6 +82,7 @@ Route::middleware(['auth', 'verified', 'admin'])
     ->group(function () {
         Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
         Route::get('/health', [AdminHealthController::class, 'index'])->name('health.index');
+        Route::get('/logs', [AdminLogController::class, 'index'])->name('logs.index');
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
         Route::patch('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
         Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');

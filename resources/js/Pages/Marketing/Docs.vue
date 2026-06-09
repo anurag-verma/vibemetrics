@@ -2,6 +2,7 @@
 import CloudDecoration from '@/Components/Marketing/CloudDecoration.vue';
 import GradientMesh from '@/Components/Marketing/GradientMesh.vue';
 import PaperBackground from '@/Components/Marketing/PaperBackground.vue';
+import DocsSectionNav from '@/Components/DocsSectionNav.vue';
 import ScrollReveal from '@/Components/Marketing/ScrollReveal.vue';
 import MarketingLayout from '@/Layouts/MarketingLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
@@ -73,14 +74,14 @@ onUnmounted(() => {
             <GradientMesh variant="hero" />
             <CloudDecoration position="hero" />
 
-            <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+            <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-24 lg:px-8">
                 <ScrollReveal direction="up">
                     <p class="text-sm font-semibold uppercase tracking-wider text-indigo-600">Documentation</p>
-                    <h1 class="mt-4 max-w-3xl font-serif text-4xl font-bold tracking-tight text-warm-800 sm:text-5xl">
+                    <h1 class="mt-4 max-w-3xl font-serif text-3xl font-bold tracking-tight text-warm-800 sm:text-4xl lg:text-5xl">
                         Set up honest analytics in
                         <span class="vm-gradient-text">minutes</span>
                     </h1>
-                    <p class="mt-6 max-w-2xl text-lg leading-relaxed text-slate-600">
+                    <p class="mt-4 max-w-2xl text-base leading-relaxed text-slate-600 sm:mt-6 sm:text-lg">
                         Add one lightweight script, verify data in your dashboard, and start measuring traffic
                         without cookies or complex configuration.
                     </p>
@@ -96,35 +97,25 @@ onUnmounted(() => {
             </div>
         </section>
 
-        <section class="vm-section-mesh-alt relative py-16 sm:py-20">
+        <section class="vm-section-mesh-alt relative py-10 sm:py-20">
             <PaperBackground variant="alt" />
 
-            <div class="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[220px_1fr] lg:gap-16 lg:px-8">
-                <aside class="hidden lg:block">
-                    <nav class="sticky top-24 space-y-1">
-                        <a
-                            v-for="item in sections"
-                            :key="item.id"
-                            :href="`#${item.id}`"
-                            class="block rounded-lg px-3 py-2 text-sm text-slate-600 transition hover:bg-paper hover:text-warm-800"
-                        >
-                            {{ item.label }}
-                        </a>
-                    </nav>
-                </aside>
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-16">
+                    <DocsSectionNav :sections="sections" variant="marketing" />
 
-                <div class="min-w-0 space-y-16">
+                    <div class="min-w-0 overflow-x-hidden space-y-12 sm:space-y-16">
                     <ScrollReveal direction="up">
-                        <div id="getting-started" class="scroll-mt-24">
+                        <div id="getting-started" class="scroll-mt-36 lg:scroll-mt-24">
                             <h2 class="vm-section-heading">Getting started</h2>
                             <p class="mt-4 text-lg text-slate-600">
                                 Three steps from zero to live analytics on your site.
                             </p>
 
                             <ol class="mt-8 space-y-4">
-                                <li class="vm-craft-card flex gap-4 p-5">
+                                <li class="vm-craft-card flex gap-4 p-4 sm:p-5">
                                     <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700">1</span>
-                                    <div>
+                                    <div class="min-w-0">
                                         <h3 class="font-semibold text-warm-800">Create your account</h3>
                                         <p class="mt-1 text-sm leading-relaxed text-slate-600">
                                             Register for free, then open <strong>Sites</strong> and add your domain.
@@ -132,9 +123,9 @@ onUnmounted(() => {
                                         </p>
                                     </div>
                                 </li>
-                                <li class="vm-craft-card flex gap-4 p-5">
+                                <li class="vm-craft-card flex gap-4 p-4 sm:p-5">
                                     <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700">2</span>
-                                    <div>
+                                    <div class="min-w-0">
                                         <h3 class="font-semibold text-warm-800">Install the tracker</h3>
                                         <p class="mt-1 text-sm leading-relaxed text-slate-600">
                                             Copy the embed snippet from your site settings and paste it before the closing
@@ -142,9 +133,9 @@ onUnmounted(() => {
                                         </p>
                                     </div>
                                 </li>
-                                <li class="vm-craft-card flex gap-4 p-5">
+                                <li class="vm-craft-card flex gap-4 p-4 sm:p-5">
                                     <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700">3</span>
-                                    <div>
+                                    <div class="min-w-0">
                                         <h3 class="font-semibold text-warm-800">Verify in the dashboard</h3>
                                         <p class="mt-1 text-sm leading-relaxed text-slate-600">
                                             Visit your site, then check the dashboard for pageviews, referrers, and live visitors.
@@ -157,7 +148,7 @@ onUnmounted(() => {
                     </ScrollReveal>
 
                     <ScrollReveal direction="up">
-                        <div id="install" class="scroll-mt-24">
+                        <div id="install" class="scroll-mt-36 lg:scroll-mt-24">
                             <h2 class="vm-section-heading">Install script</h2>
                             <p class="mt-4 text-slate-600">
                                 Replace <code class="rounded bg-warm-100 px-1.5 py-0.5 text-xs">YOUR_TRACKING_ID</code>
@@ -202,7 +193,7 @@ onUnmounted(() => {
                     </ScrollReveal>
 
                     <ScrollReveal direction="up">
-                        <div id="spa" class="scroll-mt-24">
+                        <div id="spa" class="scroll-mt-36 lg:scroll-mt-24">
                             <h2 class="vm-section-heading">SPA support</h2>
                             <p class="mt-4 text-slate-600">
                                 VibeMetrics automatically tracks route changes in single-page applications.
@@ -232,14 +223,14 @@ onUnmounted(() => {
                     </ScrollReveal>
 
                     <ScrollReveal direction="up">
-                        <div id="utm" class="scroll-mt-24">
+                        <div id="utm" class="scroll-mt-36 lg:scroll-mt-24">
                             <h2 class="vm-section-heading">UTM tracking</h2>
                             <p class="mt-4 text-slate-600">
                                 Standard UTM query parameters are captured automatically and appear in your campaign reports.
                             </p>
 
-                            <div class="mt-6 overflow-hidden rounded-2xl border border-warm-200">
-                                <table class="min-w-full divide-y divide-warm-200 text-sm">
+                            <div class="mt-6 overflow-x-auto rounded-2xl border border-warm-200">
+                                <table class="min-w-[32rem] divide-y divide-warm-200 text-sm sm:min-w-full">
                                     <thead class="bg-paper">
                                         <tr>
                                             <th class="px-4 py-3 text-left font-semibold text-warm-800">Parameter</th>
@@ -267,7 +258,7 @@ onUnmounted(() => {
                     </ScrollReveal>
 
                     <ScrollReveal direction="up">
-                        <div id="dashboard" class="scroll-mt-24">
+                        <div id="dashboard" class="scroll-mt-36 lg:scroll-mt-24">
                             <h2 class="vm-section-heading">Dashboard</h2>
                             <p class="mt-4 text-slate-600">
                                 Once tracking is live, your dashboard shows everything you need at a glance.
@@ -294,7 +285,7 @@ onUnmounted(() => {
                     </ScrollReveal>
 
                     <ScrollReveal direction="up">
-                        <div id="privacy" class="vm-craft-card scroll-mt-24 p-8">
+                        <div id="privacy" class="vm-craft-card scroll-mt-36 p-5 sm:p-8 lg:scroll-mt-24">
                             <h2 class="vm-section-heading">Privacy</h2>
                             <p class="mt-4 text-slate-600">
                                 VibeMetrics is built privacy-first. No cookies, no IP address storage, and no cross-site tracking.
@@ -308,6 +299,7 @@ onUnmounted(() => {
                             </Link>
                         </div>
                     </ScrollReveal>
+                    </div>
                 </div>
             </div>
         </section>

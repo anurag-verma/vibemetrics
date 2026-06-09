@@ -1,5 +1,6 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import PageHeader from '@/Components/PageHeader.vue';
 import { useRelativeUpdatedLabel } from '@/Composables/useRelativeUpdatedLabel';
 import { formatDisplayDateTime } from '@/utils/date';
 import { Head, router } from '@inertiajs/vue3';
@@ -72,25 +73,36 @@ const formatTimestamp = (value) => {
 };
 
 const checkEntries = computed(() => [
-    { key: 'database', title: 'Database', icon: 'database' },
-    { key: 'cache', title: 'Cache', icon: 'cache' },
-    { key: 'queue', title: 'Queue', icon: 'queue' },
-    { key: 'storage', title: 'Storage', icon: 'storage' },
-    { key: 'scheduler', title: 'Scheduler', icon: 'scheduler' },
+    { key: 'server', title: 'Server' },
+    { key: 'database', title: 'Database' },
+    { key: 'cache', title: 'Cache' },
+    { key: 'queue', title: 'Queue' },
+    { key: 'storage', title: 'Storage' },
+    { key: 'scheduler', title: 'Scheduler' },
+    { key: 'opcache', title: 'OPcache' },
+    { key: 'mail', title: 'Mail' },
+    { key: 'ingest', title: 'Ingest' },
 ]);
+
+const formatPercent = (value) => (value != null ? `${value}%` : '—');
+
+const formatLoad = (load) => {
+    if (!load) return '—';
+
+    return `${load['1m']} / ${load['5m']} / ${load['15m']}`;
+};
 </script>
 
 <template>
     <Head title="Admin — System Health" />
 
     <AdminLayout>
-        <template #header>
-            <div class="flex flex-1 flex-wrap items-center justify-between gap-3">
-                <div>
-                    <h1 class="text-lg font-semibold text-slate-900 dark:text-white">System health</h1>
-                    <p class="text-sm text-slate-500 dark:text-slate-400">Server resources and infrastructure status</p>
-                </div>
-                <div class="flex items-center gap-2">
+        <div class="mx-auto max-w-7xl space-y-6">
+            <PageHeader
+                title="System health"
+                description="Server resources and infrastructure status."
+            >
+                <template #actions>
                     <span class="hidden text-xs text-slate-500 dark:text-slate-400 sm:inline">{{ lastUpdatedLabel }}</span>
                     <button
                         type="button"
@@ -109,11 +121,8 @@ const checkEntries = computed(() => [
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
                     </button>
-                </div>
-            </div>
-        </template>
-
-        <div class="mx-auto max-w-7xl space-y-6">
+                </template>
+            </PageHeader>
             <div class="flex flex-wrap items-center gap-2">
                 <span
                     class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
@@ -121,6 +130,9 @@ const checkEntries = computed(() => [
                 >
                     <span class="h-1.5 w-1.5 rounded-full" :class="dotClasses(health.status)" />
                     Overall: {{ statusLabel(health.status) }}
+                </span>
+                <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                    {{ health.os?.label ?? health.os?.family ?? 'Unknown OS' }}
                 </span>
                 <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
                     {{ health.app.env }}
@@ -135,14 +147,45 @@ const checkEntries = computed(() => [
 
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <div class="vm-card">
-                    <p class="text-sm font-medium text-slate-500 dark:text-slate-400">PHP</p>
-                    <p class="mt-2 text-2xl font-bold text-slate-900 dark:text-white">{{ health.app.php_version }}</p>
-                    <p class="mt-1 text-xs text-slate-400">Memory {{ health.app.memory_usage_mb }} MB · Peak {{ health.app.memory_peak_mb }} MB</p>
+                    <p class="text-sm font-medium text-slate-500 dark:text-slate-400">CPU usage</p>
+                    <p class="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
+                        {{ formatPercent(health.checks.server.cpu_percent) }}
+                    </p>
+                    <p class="mt-1 text-xs text-slate-400">
+                        Load {{ formatLoad(health.checks.server.load_average) }}
+                    </p>
                 </div>
                 <div class="vm-card">
-                    <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Laravel</p>
-                    <p class="mt-2 text-2xl font-bold text-slate-900 dark:text-white">{{ health.app.laravel_version }}</p>
-                    <p class="mt-1 text-xs text-slate-400">{{ health.app.timezone }}</p>
+                    <p class="text-sm font-medium text-slate-500 dark:text-slate-400">RAM usage</p>
+                    <p class="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
+                        {{ formatPercent(health.checks.server.memory?.used_percent) }}
+                    </p>
+                    <p class="mt-1 text-xs text-slate-400">
+                        {{ formatBytes(health.checks.server.memory?.used_bytes) }} used ·
+                        {{ formatBytes(health.checks.server.memory?.free_bytes) }} free
+                    </p>
+                </div>
+                <div class="vm-card">
+                    <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Uptime</p>
+                    <p class="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
+                        {{ health.checks.server.uptime_human ?? '—' }}
+                    </p>
+                    <p class="mt-1 text-xs text-slate-400">{{ health.os?.family }} · {{ health.os?.machine }}</p>
+                </div>
+                <div class="vm-card">
+                    <p class="text-sm font-medium text-slate-500 dark:text-slate-400">PHP</p>
+                    <p class="mt-2 text-2xl font-bold text-slate-900 dark:text-white">{{ health.app.php_version }}</p>
+                    <p class="mt-1 text-xs text-slate-400">
+                        Request {{ health.app.memory_usage_mb }} MB · Limit {{ health.app.memory_limit }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <div class="vm-card">
+                    <p class="text-sm font-medium text-slate-500 dark:text-slate-400">VibeMetrics</p>
+                    <p class="mt-2 text-2xl font-bold text-slate-900 dark:text-white">v{{ health.app.version }}</p>
+                    <p class="mt-1 text-xs text-slate-400">Laravel {{ health.app.laravel_version }}</p>
                 </div>
                 <div class="vm-card">
                     <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Database size</p>
@@ -156,6 +199,15 @@ const checkEntries = computed(() => [
                     </p>
                     <p class="mt-1 text-xs text-slate-400">
                         {{ formatBytes(health.checks.storage.free_bytes) }} free · Log {{ formatBytes(health.checks.storage.log_size_bytes) }}
+                    </p>
+                </div>
+                <div class="vm-card">
+                    <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Events (24h)</p>
+                    <p class="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
+                        {{ health.checks.ingest.events_last_24h?.toLocaleString() ?? '0' }}
+                    </p>
+                    <p class="mt-1 text-xs text-slate-400">
+                        Limit {{ health.checks.ingest.collect_rate_limit }}/min
                     </p>
                 </div>
             </div>
@@ -178,7 +230,26 @@ const checkEntries = computed(() => [
                     </div>
 
                     <dl class="space-y-2 text-sm">
-                        <template v-if="entry.key === 'database'">
+                        <template v-if="entry.key === 'server'">
+                            <div class="flex justify-between gap-4">
+                                <dt class="text-slate-500 dark:text-slate-400">CPU</dt>
+                                <dd class="font-medium text-slate-800 dark:text-slate-200">{{ formatPercent(health.checks.server.cpu_percent) }}</dd>
+                            </div>
+                            <div class="flex justify-between gap-4">
+                                <dt class="text-slate-500 dark:text-slate-400">RAM</dt>
+                                <dd class="font-medium text-slate-800 dark:text-slate-200">{{ formatPercent(health.checks.server.memory?.used_percent) }}</dd>
+                            </div>
+                            <div class="flex justify-between gap-4">
+                                <dt class="text-slate-500 dark:text-slate-400">Load avg</dt>
+                                <dd class="font-medium text-slate-800 dark:text-slate-200">{{ formatLoad(health.checks.server.load_average) }}</dd>
+                            </div>
+                            <div class="flex justify-between gap-4">
+                                <dt class="text-slate-500 dark:text-slate-400">Uptime</dt>
+                                <dd class="font-medium text-slate-800 dark:text-slate-200">{{ health.checks.server.uptime_human ?? '—' }}</dd>
+                            </div>
+                        </template>
+
+                        <template v-else-if="entry.key === 'database'">
                             <div class="flex justify-between gap-4">
                                 <dt class="text-slate-500 dark:text-slate-400">Driver</dt>
                                 <dd class="font-medium text-slate-800 dark:text-slate-200">{{ health.checks.database.driver }}</dd>
@@ -250,6 +321,47 @@ const checkEntries = computed(() => [
                                 <dd class="text-right font-medium text-slate-800 dark:text-slate-200">
                                     {{ formatTimestamp(health.checks.scheduler.last_purge_at) }}
                                 </dd>
+                            </div>
+                        </template>
+
+                        <template v-else-if="entry.key === 'opcache'">
+                            <div class="flex justify-between gap-4">
+                                <dt class="text-slate-500 dark:text-slate-400">Enabled</dt>
+                                <dd class="font-medium text-slate-800 dark:text-slate-200">{{ health.checks.opcache.enabled ? 'Yes' : 'No' }}</dd>
+                            </div>
+                            <div class="flex justify-between gap-4">
+                                <dt class="text-slate-500 dark:text-slate-400">Hit rate</dt>
+                                <dd class="font-medium text-slate-800 dark:text-slate-200">{{ formatPercent(health.checks.opcache.hit_rate) }}</dd>
+                            </div>
+                            <div class="flex justify-between gap-4">
+                                <dt class="text-slate-500 dark:text-slate-400">Scripts</dt>
+                                <dd class="font-medium text-slate-800 dark:text-slate-200">{{ health.checks.opcache.cached_scripts ?? '—' }}</dd>
+                            </div>
+                        </template>
+
+                        <template v-else-if="entry.key === 'mail'">
+                            <div class="flex justify-between gap-4">
+                                <dt class="text-slate-500 dark:text-slate-400">Driver</dt>
+                                <dd class="font-medium text-slate-800 dark:text-slate-200">{{ health.checks.mail.driver }}</dd>
+                            </div>
+                            <div class="flex justify-between gap-4">
+                                <dt class="text-slate-500 dark:text-slate-400">From</dt>
+                                <dd class="truncate font-medium text-slate-800 dark:text-slate-200">{{ health.checks.mail.from ?? '—' }}</dd>
+                            </div>
+                        </template>
+
+                        <template v-else-if="entry.key === 'ingest'">
+                            <div class="flex justify-between gap-4">
+                                <dt class="text-slate-500 dark:text-slate-400">Maintenance</dt>
+                                <dd class="font-medium text-slate-800 dark:text-slate-200">{{ health.checks.ingest.maintenance_mode ? 'On' : 'Off' }}</dd>
+                            </div>
+                            <div class="flex justify-between gap-4">
+                                <dt class="text-slate-500 dark:text-slate-400">Rate limit</dt>
+                                <dd class="font-medium text-slate-800 dark:text-slate-200">{{ health.checks.ingest.collect_rate_limit }}/min</dd>
+                            </div>
+                            <div class="flex justify-between gap-4">
+                                <dt class="text-slate-500 dark:text-slate-400">Last event</dt>
+                                <dd class="text-right font-medium text-slate-800 dark:text-slate-200">{{ formatTimestamp(health.checks.ingest.last_event_at) }}</dd>
                             </div>
                         </template>
                     </dl>

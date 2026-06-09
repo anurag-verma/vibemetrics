@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Support\AnalyticsDateRange;
+use App\Support\TimezoneList;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,9 +20,9 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'name',
         'email',
+        'timezone',
+        'default_date_range',
         'password',
-        'is_admin',
-        'is_active',
     ];
 
     /** @var list<string> */
@@ -55,10 +57,26 @@ class User extends Authenticatable implements MustVerifyEmail
         return (bool) $this->is_active;
     }
 
+    public function isLastAdmin(): bool
+    {
+        return $this->isAdmin()
+            && static::query()->where('is_admin', true)->count() <= 1;
+    }
+
     public function defaultHomeRoute(): string
     {
         return $this->isAdmin()
             ? route('admin.dashboard', absolute: false)
             : route('dashboard', absolute: false);
+    }
+
+    public function preferredTimezone(): string
+    {
+        return TimezoneList::resolve($this->timezone);
+    }
+
+    public function preferredDateRange(): string
+    {
+        return AnalyticsDateRange::resolvePreset($this->default_date_range);
     }
 }

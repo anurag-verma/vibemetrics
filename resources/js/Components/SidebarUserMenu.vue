@@ -18,6 +18,7 @@ const open = ref(false);
 const themeOpen = ref(false);
 const menuRef = ref(null);
 const currentTheme = ref(getStoredTheme());
+const canHover = ref(false);
 
 const themeModes = [
     { value: 'system', label: 'System' },
@@ -55,8 +56,8 @@ const dividerClass = computed(() =>
 
 const menuPositionClass = computed(() =>
     props.collapsed
-        ? 'absolute bottom-full left-0 z-50 mb-2 w-full lg:bottom-0 lg:left-full lg:mb-0 lg:ml-2 lg:w-52'
-        : 'absolute bottom-full left-0 z-50 mb-2 w-full',
+        ? 'absolute bottom-full left-0 z-50 mb-2 w-full overflow-visible lg:bottom-0 lg:left-full lg:mb-0 lg:ml-2 lg:w-52'
+        : 'absolute bottom-full left-0 z-50 mb-2 w-full overflow-visible',
 );
 
 const close = () => {
@@ -67,6 +68,22 @@ const close = () => {
 const toggle = () => {
     open.value = !open.value;
     if (!open.value) {
+        themeOpen.value = false;
+    }
+};
+
+const toggleTheme = () => {
+    themeOpen.value = !themeOpen.value;
+};
+
+const openThemeOnHover = () => {
+    if (canHover.value) {
+        themeOpen.value = true;
+    }
+};
+
+const closeThemeOnLeave = () => {
+    if (canHover.value) {
         themeOpen.value = false;
     }
 };
@@ -83,7 +100,11 @@ const onClickOutside = (event) => {
     }
 };
 
-onMounted(() => document.addEventListener('click', onClickOutside));
+onMounted(() => {
+    document.addEventListener('click', onClickOutside);
+    canHover.value = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+});
+
 onUnmounted(() => document.removeEventListener('click', onClickOutside));
 </script>
 
@@ -108,14 +129,17 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside));
 
             <div
                 class="relative"
-                @mouseenter="themeOpen = true"
-                @mouseleave="themeOpen = false"
+                @mouseenter="openThemeOnHover"
+                @mouseleave="closeThemeOnLeave"
             >
                 <button
                     type="button"
                     class="flex w-full items-center gap-2 px-3 py-2.5 text-sm transition"
                     :class="[itemClass, themeOpen ? (darkSidebar ? 'bg-slate-700' : 'bg-slate-50 dark:bg-slate-700') : '']"
-                    @click.stop="themeOpen = !themeOpen"
+                    aria-haspopup="menu"
+                    :aria-expanded="themeOpen"
+                    aria-label="Theme"
+                    @click.stop="toggleTheme"
                 >
                     <svg class="h-4 w-4 shrink-0 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -128,7 +152,7 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside));
 
                 <div
                     v-show="themeOpen"
-                    class="absolute left-full top-0 z-[60] pl-1"
+                    class="absolute top-0 z-[60] right-full mr-1 pr-1 sm:right-auto sm:mr-0 sm:left-full sm:pl-1 sm:pr-0"
                 >
                     <div
                         class="min-w-[9rem] overflow-hidden rounded-lg border shadow-lg"
@@ -196,6 +220,9 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside));
             class="flex w-full items-center rounded-lg py-2 text-left text-sm font-medium transition"
             :class="[triggerClass, collapsed ? 'gap-2.5 px-2 lg:justify-center lg:gap-0 lg:px-1' : 'gap-2.5 px-2']"
             :title="collapsed ? email : undefined"
+            :aria-expanded="open"
+            aria-haspopup="menu"
+            aria-label="Account menu"
             @click.stop="toggle"
         >
             <span

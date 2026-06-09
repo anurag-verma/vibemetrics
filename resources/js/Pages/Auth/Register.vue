@@ -18,11 +18,20 @@ import {
 import { validateRegister } from '@/utils/validation';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
+const detectedTimezone = (() => {
+    try {
+        return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+    } catch {
+        return 'UTC';
+    }
+})();
+
 const form = useForm({
     name: '',
     email: '',
     password: '',
     password_confirmation: '',
+    timezone: detectedTimezone,
 });
 
 const { clientErrors, submitted, fieldError, liveOptions } = useClientFormValidation(form);

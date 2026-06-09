@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Support\AnalyticsDateRange;
+use App\Support\TimezoneList;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,6 +23,8 @@ class ProfileController extends Controller
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
+            'timezones' => TimezoneList::identifiers(),
+            'dateRangePresets' => collect(AnalyticsDateRange::presets())->except('custom')->all(),
         ]);
     }
 
@@ -32,7 +36,7 @@ class ProfileController extends Controller
         $request->user()->update($request->validated());
 
         return Redirect::route('profile.edit')
-            ->with('success', 'Your name has been updated.');
+            ->with('success', 'Your profile has been updated.');
     }
 
     /**
@@ -45,6 +49,11 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+
+        if ($user->isLastAdmin()) {
+            return Redirect::route('profile.edit')
+                ->with('error', 'You cannot delete the last admin account.');
+        }
 
         Auth::logout();
 

@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Services\UrlNormalizer;
 use App\Services\UserAgentParser;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -22,11 +23,11 @@ class RecordPageView implements ShouldQueue
     public function __construct(
         public int $siteId,
         public array $payload,
-        public string $country = 'US',
+        public string $country = 'XX',
         public ?string $userAgent = null,
     ) {}
 
-    public function handle(UserAgentParser $parser): void
+    public function handle(UserAgentParser $parser, UrlNormalizer $normalizer): void
     {
         $parsed = $parser->parse($this->userAgent);
 
@@ -36,14 +37,25 @@ class RecordPageView implements ShouldQueue
             $device = $parser->inferDevice($this->userAgent);
         }
 
+        $visitorId = $this->payload['visitor_id'] ?? null;
+        if (! is_string($visitorId) || strlen($visitorId) > 36) {
+            $visitorId = null;
+        }
+
+        $country = strtoupper(substr($this->country, 0, 2));
+        if ($country === '' || strlen($country) !== 2) {
+            $country = 'XX';
+        }
+
         DB::table('page_views')->insert([
             'site_id' => $this->siteId,
-            'url' => mb_substr((string) $this->payload['url'], 0, 2048),
+            'visitor_id' => $visitorId,
+            'url' => $normalizer->normalize((string) $this->payload['url']),
             'referrer' => isset($this->payload['referrer']) ? mb_substr((string) $this->payload['referrer'], 0, 2048) : null,
             'browser' => $parsed['browser'],
             'os' => $parsed['os'],
             'device' => $device,
-            'country' => strtoupper(substr($this->country, 0, 2)),
+            'country' => $country,
             'utm_source' => $this->payload['utm_source'] ?? null,
             'utm_medium' => $this->payload['utm_medium'] ?? null,
             'utm_campaign' => $this->payload['utm_campaign'] ?? null,

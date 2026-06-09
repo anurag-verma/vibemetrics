@@ -30,8 +30,13 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('collect', function (Request $request) {
             $perMinute = app(PlatformSettingsService::class)->getInt('collect_rate_limit', 120);
             $perMinute = max(10, min(1000, $perMinute));
+            $trackingId = (string) $request->input('tracking_id', 'unknown');
+            $sitePerMinute = max($perMinute, min(5000, $perMinute * 5));
 
-            return Limit::perMinute($perMinute)->by($request->ip());
+            return [
+                Limit::perMinute($perMinute)->by($request->ip()),
+                Limit::perMinute($sitePerMinute)->by('collect:site:'.$trackingId),
+            ];
         });
 
         Vite::prefetch(concurrency: 3);

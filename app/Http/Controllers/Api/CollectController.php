@@ -9,6 +9,7 @@ use App\Models\Site;
 use App\Services\BotDetector;
 use App\Services\GeoIpResolver;
 use App\Services\PlatformSettingsService;
+use App\Services\SiteDomainMatcher;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 
@@ -19,6 +20,7 @@ class CollectController extends Controller
         BotDetector $botDetector,
         GeoIpResolver $geoIp,
         PlatformSettingsService $settings,
+        SiteDomainMatcher $domainMatcher,
     ): Response {
         if ($settings->getBool('maintenance_mode')) {
             abort(503);
@@ -29,6 +31,7 @@ class CollectController extends Controller
         }
 
         $trackingId = $request->validated('tracking_id');
+        $pageUrl = $request->validated('url');
 
         /** @var Site|null $site */
         $site = Cache::remember(
@@ -36,11 +39,16 @@ class CollectController extends Controller
             300,
             fn () => Site::query()
                 ->where('tracking_id', $trackingId)
-                ->first(['id', 'tracking_id', 'is_paused'])
+                ->first(['id', 'tracking_id', 'domain', 'is_paused'])
         );
 
         if ($site === null || $site->is_paused) {
             abort(404);
+        }
+
+        if (config('analytics.enforce_collect_domain')
+            && ! $domainMatcher->matches($site->domain, $pageUrl)) {
+            return response()->noContent();
         }
 
         RecordPageView::dispatch(

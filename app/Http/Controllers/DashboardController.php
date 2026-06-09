@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Site;
+use App\Services\AnalyticsDateRangeResolver;
 use App\Services\PlatformSettingsService;
 use App\Services\SiteAnalyticsService;
+use App\Support\AnalyticsDateRange;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -23,23 +25,52 @@ class DashboardController extends Controller
         return redirect()->route('sites.show', $site);
     }
 
-    public function show(Site $site, Request $request, SiteAnalyticsService $analytics, PlatformSettingsService $settings): Response
-    {
+    public function show(
+        Site $site,
+        Request $request,
+        SiteAnalyticsService $analytics,
+        AnalyticsDateRangeResolver $rangeResolver,
+    ): Response {
         $this->authorize('view', $site);
 
-        $defaultRange = $settings->getInt('default_analytics_range', 30);
-        $range = (int) $request->query('range', $defaultRange);
+        $user = $request->user();
+        $platformDefault = $this->platformDefaultDateRange();
+        $dateRange = $rangeResolver->resolve(
+            $request,
+            $user->preferredTimezone(),
+            $user->default_date_range,
+            $platformDefault,
+        );
 
-        if (! in_array($range, config('analytics.allowed_ranges', [7, 30, 90]), true)) {
-            $range = $defaultRange;
-        }
-
-        $metrics = $analytics->aggregate($site, $range);
+        $metrics = $analytics->aggregate($site, $dateRange, $user->preferredTimezone());
 
         return Inertia::render('Dashboard', [
             'site' => $site->only(['id', 'name', 'domain', 'tracking_id', 'is_paused']),
             'metrics' => $metrics,
-            'range' => $range,
+            'dateRange' => $dateRange->toQueryParams() + ['label' => $dateRange->label],
+            'dateRangePresets' => collect(AnalyticsDateRange::presets())
+                ->except('custom')
+                ->all(),
         ]);
+    }
+
+    private function platformDefaultDateRange(): string
+    {
+        $settings = app(PlatformSettingsService::class);
+        $value = $settings->get('default_date_range') ?? $settings->get('default_analytics_range');
+
+        if (is_string($value) && AnalyticsDateRange::isValidPreset($value)) {
+            return $value;
+        }
+
+        if (is_int($value) || (is_string($value) && ctype_digit($value))) {
+            $legacy = AnalyticsDateRange::fromLegacyRange((int) $value);
+
+            if ($legacy !== null) {
+                return $legacy;
+            }
+        }
+
+        return config('analytics.default_date_range', 'last_30_days');
     }
 }

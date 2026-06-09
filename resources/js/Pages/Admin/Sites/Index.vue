@@ -1,5 +1,6 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import PageHeader from '@/Components/PageHeader.vue';
 import { Head, router } from '@inertiajs/vue3';
 
 defineProps({
@@ -17,15 +18,69 @@ const togglePause = (site) => {
     <Head title="Admin — Sites" />
 
     <AdminLayout>
-        <template #header>
-            <div>
-                <h1 class="text-lg font-semibold text-slate-900 dark:text-white">Sites</h1>
-                <p class="text-sm text-slate-500 dark:text-slate-400">All tracking sites across the platform</p>
-            </div>
-        </template>
+        <PageHeader
+            title="Sites"
+            description="All tracking sites across the platform."
+        />
 
         <div class="vm-card overflow-hidden">
-            <div class="overflow-x-auto">
+            <div class="space-y-4 p-4 md:hidden">
+                <div
+                    v-for="site in sites.data"
+                    :key="`card-${site.id}`"
+                    class="rounded-xl border border-slate-200 p-4 dark:border-slate-700"
+                >
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <p class="font-medium text-slate-900 dark:text-white">{{ site.name }}</p>
+                            <a
+                                :href="`https://${site.domain}`"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="mt-0.5 block truncate text-sm text-indigo-600 hover:underline dark:text-indigo-400"
+                            >
+                                {{ site.domain }}
+                            </a>
+                        </div>
+                        <button
+                            type="button"
+                            class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors"
+                            :class="site.is_paused ? 'bg-slate-200 dark:bg-slate-700' : 'bg-indigo-600'"
+                            :title="site.is_paused ? 'Resume tracking' : 'Pause tracking'"
+                            @click="togglePause(site)"
+                        >
+                            <span
+                                class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition"
+                                :class="site.is_paused ? 'translate-x-0' : 'translate-x-5'"
+                            />
+                        </button>
+                    </div>
+
+                    <dl class="mt-4 grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                            <dt class="text-xs text-slate-500 dark:text-slate-400">Owner</dt>
+                            <dd class="mt-0.5 font-medium text-slate-700 dark:text-slate-300">{{ site.owner_name }}</dd>
+                            <dd class="truncate text-xs text-slate-500 dark:text-slate-400">{{ site.owner_email }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs text-slate-500 dark:text-slate-400">Events (7d)</dt>
+                            <dd class="mt-0.5 font-medium text-slate-700 dark:text-slate-300">{{ site.events_7d.toLocaleString() }}</dd>
+                        </div>
+                        <div class="col-span-2">
+                            <dt class="text-xs text-slate-500 dark:text-slate-400">Created</dt>
+                            <dd class="mt-0.5 text-slate-600 dark:text-slate-400">{{ site.created_at }}</dd>
+                        </div>
+                    </dl>
+
+                    <p class="mt-3 text-xs text-slate-500 dark:text-slate-400">
+                        Tracking {{ site.is_paused ? 'paused' : 'active' }}
+                    </p>
+                </div>
+
+                <p v-if="!sites.data.length" class="py-8 text-center text-slate-400">No sites yet</p>
+            </div>
+
+            <div class="hidden overflow-x-auto md:block">
                 <table class="min-w-full text-sm">
                     <thead>
                         <tr class="border-b border-slate-200 text-left text-slate-500 dark:border-slate-700 dark:text-slate-400">

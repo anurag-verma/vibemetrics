@@ -21,6 +21,27 @@ export function formatDisplayDate(value) {
     return `${day}-${month}-${year}`;
 }
 
+export function formatTrendLabel(value, granularity = 'day') {
+    if (!value) {
+        return '';
+    }
+
+    if (granularity === 'hour') {
+        const date = new Date(String(value).replace(' ', 'T'));
+
+        if (Number.isNaN(date.getTime())) {
+            return String(value);
+        }
+
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+
+        return `${hours}:${minutes}`;
+    }
+
+    return formatDisplayDate(value);
+}
+
 export function formatDisplayDateTime(value) {
     if (!value) {
         return '';

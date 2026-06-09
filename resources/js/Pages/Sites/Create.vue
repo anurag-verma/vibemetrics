@@ -1,5 +1,6 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
+import PageHeader from '@/Components/PageHeader.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
@@ -23,21 +24,13 @@ const submit = () => form.post(route('sites.store'));
     <Head title="Add Website" />
 
     <AppLayout>
-        <template #header>
-            <div>
-                <h1 class="text-lg font-semibold text-slate-900 dark:text-white">Add website</h1>
-                <p class="text-sm text-slate-500 dark:text-slate-400">
-                    <template v-if="isUnlimitedSites">
-                        {{ sitesUsed }} {{ sitesUsed === 1 ? 'site' : 'sites' }}
-                    </template>
-                    <template v-else>
-                        {{ sitesUsed }} / {{ siteLimit }} sites used
-                    </template>
-                </p>
-            </div>
-        </template>
-
         <div class="mx-auto max-w-xl">
+            <PageHeader
+                title="Add website"
+                :description="isUnlimitedSites
+                    ? `${sitesUsed} ${sitesUsed === 1 ? 'site' : 'sites'} on your account`
+                    : `${sitesUsed} of ${siteLimit} sites used`"
+            />
             <form class="vm-card space-y-6" @submit.prevent="submit">
                 <div>
                     <InputLabel for="name" value="Site name" />

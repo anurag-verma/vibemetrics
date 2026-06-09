@@ -75,7 +75,13 @@ const hasData = computed(() => props.countries.length > 0);
                 >
                     <span class="truncate text-slate-700 dark:text-slate-300">
                         <span class="mr-2 text-xs text-slate-400">{{ index + 1 }}</span>
-                        {{ country.label.length === 2 && regionNames ? regionNames.of(country.label.toUpperCase()) ?? country.label : country.label }}
+                        {{
+                            country.label.length === 2 && country.label.toUpperCase() === 'XX'
+                                ? 'Unknown'
+                                : (country.label.length === 2 && regionNames
+                                    ? regionNames.of(country.label.toUpperCase()) ?? country.label
+                                    : country.label)
+                        }}
                     </span>
                     <span class="shrink-0 font-semibold text-slate-600 dark:text-slate-400">
                         {{ country.count.toLocaleString() }}

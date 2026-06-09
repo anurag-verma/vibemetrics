@@ -1,5 +1,7 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
+import Modal from '@/Components/Modal.vue';
+import PageHeader from '@/Components/PageHeader.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
@@ -34,7 +36,9 @@ const resetSite = () => {
 };
 
 const deleteSite = () => {
-    router.delete(route('sites.destroy', props.site.id));
+    router.delete(route('sites.destroy', props.site.id), {
+        onFinish: () => { showDeleteModal.value = false; },
+    });
 };
 
 const copy = (text) => navigator.clipboard.writeText(text);
@@ -73,22 +77,16 @@ watch(() => props.trackingSnippet, fitSnippetHeight);
     <Head :title="`${site.name} — Edit`" />
 
     <AppLayout :site="site">
-        <template #header>
-            <div>
-                <h1 class="text-lg font-semibold text-slate-900 dark:text-white">Edit website</h1>
-                <p class="text-sm text-slate-500 dark:text-slate-400">{{ site.domain }}</p>
-            </div>
-        </template>
-
         <div class="mx-auto max-w-3xl space-y-6">
+            <PageHeader title="Edit website" :description="site.domain" />
             <form class="vm-card space-y-5" @submit.prevent="submit">
                 <h3 class="vm-panel-title">General</h3>
 
                 <div>
                     <InputLabel value="Website ID" />
-                    <div class="mt-1 flex items-center gap-2">
-                        <code class="flex-1 rounded-lg bg-slate-100 px-3 py-2 font-mono text-sm text-slate-700 dark:bg-slate-800 dark:text-slate-300">{{ site.tracking_id }}</code>
-                        <button type="button" class="vm-btn-secondary" @click="copy(site.tracking_id)">Copy</button>
+                    <div class="mt-1 flex flex-col gap-2 sm:flex-row sm:items-center">
+                        <code class="flex-1 break-all rounded-lg bg-slate-100 px-3 py-2 font-mono text-sm text-slate-700 dark:bg-slate-800 dark:text-slate-300">{{ site.tracking_id }}</code>
+                        <button type="button" class="vm-btn-secondary shrink-0" @click="copy(site.tracking_id)">Copy</button>
                     </div>
                 </div>
 
@@ -109,9 +107,9 @@ watch(() => props.trackingSnippet, fitSnippetHeight);
             <div v-if="trackingSnippet" class="vm-card space-y-3">
                 <h3 class="text-base font-semibold text-slate-900 dark:text-white">Tracking code</h3>
                 <p class="text-sm text-slate-600 dark:text-slate-400">
-                    To track stats for this website, place the following code in the
-                    <code class="text-slate-700 dark:text-slate-300">&lt;head&gt;...&lt;/head&gt;</code>
-                    section of your HTML.
+                    To track stats for this website, place the following code before the closing
+                    <code class="text-slate-700 dark:text-slate-300">&lt;/body&gt;</code>
+                    tag on every page.
                 </p>
                 <div class="vm-code-block">
                     <button
@@ -184,8 +182,8 @@ watch(() => props.trackingSnippet, fitSnippetHeight);
             <Link :href="route('sites.show', site.id)" class="inline-block text-sm text-indigo-600 dark:text-indigo-400">← Back to overview</Link>
         </div>
 
-        <div v-if="showResetModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-slate-900">
+        <Modal :show="showResetModal" max-width="md" @close="showResetModal = false">
+            <div class="p-6">
                 <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Reset website?</h3>
                 <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">All page views and statistics will be permanently deleted. Site settings and tracking ID will remain.</p>
                 <div class="mt-6 flex justify-end gap-3">
@@ -193,10 +191,10 @@ watch(() => props.trackingSnippet, fitSnippetHeight);
                     <button type="button" class="vm-btn-primary bg-amber-600 hover:bg-amber-500" @click="resetSite">Reset statistics</button>
                 </div>
             </div>
-        </div>
+        </Modal>
 
-        <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-slate-900">
+        <Modal :show="showDeleteModal" max-width="md" @close="showDeleteModal = false">
+            <div class="p-6">
                 <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Delete website?</h3>
                 <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">This will permanently delete the site and all associated data. This action cannot be undone.</p>
                 <div class="mt-6 flex justify-end gap-3">
@@ -204,6 +202,6 @@ watch(() => props.trackingSnippet, fitSnippetHeight);
                     <button type="button" class="vm-btn-danger" @click="deleteSite">Delete website</button>
                 </div>
             </div>
-        </div>
+        </Modal>
     </AppLayout>
 </template>

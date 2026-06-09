@@ -8,9 +8,14 @@ class AnalyticsSql
 {
     public static function visitorFingerprintExpression(): string
     {
-        return match (DB::connection()->getDriverName()) {
+        $deviceFingerprint = match (DB::connection()->getDriverName()) {
             'sqlite' => "(COALESCE(browser, '') || '|' || COALESCE(os, '') || '|' || COALESCE(device, ''))",
             default => "CONCAT(COALESCE(browser, ''), '|', COALESCE(os, ''), '|', COALESCE(device, ''))",
+        };
+
+        return match (DB::connection()->getDriverName()) {
+            'sqlite' => "COALESCE(NULLIF(visitor_id, ''), {$deviceFingerprint})",
+            default => "COALESCE(NULLIF(visitor_id, ''), {$deviceFingerprint})",
         };
     }
 

@@ -35,9 +35,8 @@ class SiteSettingsController extends Controller
 
         Cache::forget("site:{$site->tracking_id}");
 
-        $site->update([
-            'tracking_id' => (string) Str::uuid(),
-        ]);
+        $site->tracking_id = (string) Str::uuid();
+        $site->save();
 
         Cache::forget("site:{$site->tracking_id}");
 

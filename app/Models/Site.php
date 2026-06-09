@@ -17,7 +17,6 @@ class Site extends Model
         'user_id',
         'name',
         'domain',
-        'tracking_id',
         'is_paused',
     ];
 

@@ -24,6 +24,7 @@ class PlatformSettingsService
                 'rollup_enabled' => (bool) config('analytics.rollup_enabled', true),
                 'collect_rate_limit' => 120,
                 'registration_enabled' => true,
+                'default_date_range' => 'last_30_days',
                 'default_analytics_range' => 30,
                 'maintenance_mode' => false,
                 'app_display_name' => config('app.name', 'VibeMetrics'),

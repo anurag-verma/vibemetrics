@@ -51,7 +51,7 @@ class UserController extends Controller
         }
 
         if ($request->has('is_admin')) {
-            $user->update(['is_admin' => $request->boolean('is_admin')]);
+            $user->is_admin = $request->boolean('is_admin');
         }
 
         if ($request->has('email_verified')) {
@@ -63,8 +63,10 @@ class UserController extends Controller
         }
 
         if ($request->has('is_active')) {
-            $user->update(['is_active' => $request->boolean('is_active')]);
+            $user->is_active = $request->boolean('is_active');
         }
+
+        $user->save();
 
         return back()->with('success', 'User updated.');
     }

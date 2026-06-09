@@ -25,7 +25,7 @@ class BrandingTest extends TestCase
                 'rollup_enabled' => true,
                 'collect_rate_limit' => 120,
                 'registration_enabled' => true,
-                'default_analytics_range' => 30,
+                'default_date_range' => 'last_30_days',
                 'maintenance_mode' => false,
                 'app_display_name' => 'Honestat',
                 'support_email' => 'hello@honestat.com',

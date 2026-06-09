@@ -27,11 +27,16 @@ class HandleInertiaRequests extends Middleware
 
         return [
             ...parent::share($request),
+            'app' => [
+                'version' => config('app.version'),
+            ],
             'auth' => [
                 'user' => $user ? [
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
+                    'timezone' => $user->preferredTimezone(),
+                    'default_date_range' => $user->preferredDateRange(),
                     'email_verified_at' => $user->email_verified_at,
                     'is_admin' => $user->isAdmin(),
                 ] : null,

@@ -1,5 +1,6 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
+import PageHeader from '@/Components/PageHeader.vue';
 import { formatDisplayDate } from '@/utils/date';
 import { Head, Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
@@ -30,16 +31,14 @@ const formatCreated = (dateStr) => {
     <Head title="Websites" />
 
     <AppLayout>
-        <template #header>
-            <div class="flex w-full items-center justify-between gap-4">
-                <h1 class="text-lg font-semibold text-slate-900 dark:text-white">Websites</h1>
-                <Link v-if="canAddSite" :href="route('sites.create')" class="vm-btn-primary">
-                    Add website
-                </Link>
-            </div>
-        </template>
-
         <div class="mx-auto max-w-4xl space-y-6">
+            <PageHeader title="Websites" description="Manage your tracked properties and usage limits.">
+                <template v-if="canAddSite" #actions>
+                    <Link :href="route('sites.create')" class="vm-btn-primary w-full sm:w-auto">
+                        Add website
+                    </Link>
+                </template>
+            </PageHeader>
             <!-- Usage meter -->
             <div class="vm-card">
                 <div class="flex items-center justify-between text-sm">

@@ -28,6 +28,7 @@ class RegistrationTest extends TestCase
             'email' => 'test@example.com',
             'password' => 'Password1',
             'password_confirmation' => 'Password1',
+            'timezone' => 'Asia/Kolkata',
         ]);
 
         $this->assertAuthenticated();
@@ -36,6 +37,7 @@ class RegistrationTest extends TestCase
         $user = User::query()->where('email', 'test@example.com')->first();
 
         $this->assertNotNull($user);
+        $this->assertSame('Asia/Kolkata', $user->timezone);
         $this->assertFalse($user->hasVerifiedEmail());
 
         Notification::assertSentTo($user, VerifyEmail::class);

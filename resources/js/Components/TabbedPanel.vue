@@ -1,6 +1,6 @@
 <script setup>
 import RankList from '@/Components/RankList.vue';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps({
     title: { type: String, required: true },
@@ -13,17 +13,27 @@ const props = defineProps({
 const activeTab = ref(props.tabs[0]?.id ?? '');
 
 const active = () => props.tabs.find((tab) => tab.id === activeTab.value) ?? props.tabs[0];
+
+const panelId = computed(() => `tab-panel-${activeTab.value}`);
 </script>
 
 <template>
     <div class="vm-card flex h-full min-h-[280px] flex-col animate-fade-in">
         <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
             <h3 class="vm-panel-title">{{ title }}</h3>
-            <div class="flex max-w-full gap-1 overflow-x-auto rounded-lg bg-slate-100 p-1 dark:bg-slate-800">
+            <div
+                role="tablist"
+                :aria-label="`${title} views`"
+                class="flex max-w-full gap-1 overflow-x-auto rounded-lg bg-slate-100 p-1 dark:bg-slate-800"
+            >
                 <button
                     v-for="tab in tabs"
+                    :id="`tab-${tab.id}`"
                     :key="tab.id"
                     type="button"
+                    role="tab"
+                    :aria-selected="activeTab === tab.id"
+                    :aria-controls="`tab-panel-${tab.id}`"
                     class="shrink-0 rounded-md px-2.5 py-1 text-xs font-medium transition"
                     :class="activeTab === tab.id
                         ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white'
@@ -35,7 +45,7 @@ const active = () => props.tabs.find((tab) => tab.id === activeTab.value) ?? pro
             </div>
         </div>
 
-        <div class="flex-1">
+        <div :id="panelId" role="tabpanel" :aria-labelledby="`tab-${activeTab}`" class="flex-1">
             <RankList
                 v-if="active()"
                 :title="''"

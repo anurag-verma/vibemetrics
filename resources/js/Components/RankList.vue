@@ -21,6 +21,10 @@ const formatLabel = (label) => {
     }
 
     if (props.labelType === 'country' && label.length === 2 && regionNames) {
+        if (label.toUpperCase() === 'XX') {
+            return 'Unknown';
+        }
+
         return regionNames.of(label.toUpperCase()) ?? label;
     }
 

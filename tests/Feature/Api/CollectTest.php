@@ -136,12 +136,40 @@ class CollectTest extends TestCase
             'url' => 'https://example.com',
         ];
 
-        Cache::remember("site:{$trackingId}", 300, fn () => $site->only(['id', 'tracking_id', 'is_paused']));
+        Cache::remember("site:{$trackingId}", 300, fn () => $site->only(['id', 'tracking_id', 'domain', 'is_paused']));
 
         $site->delete();
 
         $this->postJson('/api/collect', $payload)->assertNotFound();
 
         Queue::assertNothingPushed();
+    }
+
+    public function test_collect_rejects_url_on_unregistered_domain(): void
+    {
+        Queue::fake();
+
+        $site = $this->createSite(['domain' => 'example.com']);
+
+        $this->postJson('/api/collect', [
+            'tracking_id' => $site->tracking_id,
+            'url' => 'https://evil.com/page',
+        ])->assertNoContent();
+
+        Queue::assertNothingPushed();
+    }
+
+    public function test_collect_accepts_subdomain_of_registered_domain(): void
+    {
+        Queue::fake();
+
+        $site = $this->createSite(['domain' => 'example.com']);
+
+        $this->postJson('/api/collect', [
+            'tracking_id' => $site->tracking_id,
+            'url' => 'https://blog.example.com/post',
+        ])->assertNoContent();
+
+        Queue::assertPushed(RecordPageView::class);
     }
 }

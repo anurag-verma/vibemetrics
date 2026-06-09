@@ -35,11 +35,16 @@ class HealthTest extends TestCase
         $response->assertInertia(fn ($page) => $page
             ->component('Admin/Health/Index')
             ->has('health.status')
+            ->has('health.os.family')
+            ->has('health.checks.server')
             ->has('health.checks.database')
             ->has('health.checks.cache')
             ->has('health.checks.queue')
             ->has('health.checks.storage')
             ->has('health.checks.scheduler')
+            ->has('health.checks.opcache')
+            ->has('health.checks.mail')
+            ->has('health.checks.ingest')
             ->has('health.tables')
         );
     }

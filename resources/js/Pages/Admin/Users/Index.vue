@@ -1,5 +1,8 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import Modal from '@/Components/Modal.vue';
+import PageHeader from '@/Components/PageHeader.vue';
+import ToggleSwitch from '@/Components/ToggleSwitch.vue';
 import { Head, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
@@ -16,9 +19,9 @@ const updateUser = (user, payload) => {
     router.patch(route('admin.users.update', user.id), payload, { preserveScroll: true });
 };
 
-const toggleAdmin = (user) => updateUser(user, { is_admin: !user.is_admin });
-const toggleVerified = (user) => updateUser(user, { email_verified: !user.email_verified });
-const toggleActive = (user) => updateUser(user, { is_active: !user.is_active });
+const setVerified = (user, value) => updateUser(user, { email_verified: value });
+const setActive = (user, value) => updateUser(user, { is_active: value });
+const setAdmin = (user, value) => updateUser(user, { is_admin: value });
 
 const confirmDelete = (user) => {
     userToDelete.value = user;
@@ -53,15 +56,79 @@ const deleteUser = () => {
     <Head title="Admin — Users" />
 
     <AdminLayout>
-        <template #header>
-            <div>
-                <h1 class="text-lg font-semibold text-slate-900 dark:text-white">Users</h1>
-                <p class="text-sm text-slate-500 dark:text-slate-400">Global site limit: {{ siteLimit }} per user</p>
-            </div>
-        </template>
+        <PageHeader
+            title="Users"
+            :description="`Global site limit: ${siteLimit} per user`"
+        />
 
         <div class="vm-card overflow-hidden">
-            <div class="overflow-x-auto">
+            <div class="space-y-4 p-4 md:hidden">
+                <div
+                    v-for="user in users.data"
+                    :key="`card-${user.id}`"
+                    class="rounded-xl border border-slate-200 p-4 dark:border-slate-700"
+                >
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <p class="font-medium text-slate-900 dark:text-white">{{ user.name }}</p>
+                            <p class="mt-0.5 truncate text-sm text-slate-500 dark:text-slate-400">{{ user.email }}</p>
+                        </div>
+                        <button
+                            type="button"
+                            class="shrink-0 text-sm font-medium transition"
+                            :class="user.id === currentUserId
+                                ? 'cursor-not-allowed text-slate-300 dark:text-slate-600'
+                                : 'text-rose-600 hover:text-rose-500 dark:text-rose-400'"
+                            :disabled="user.id === currentUserId"
+                            @click="confirmDelete(user)"
+                        >
+                            Delete
+                        </button>
+                    </div>
+
+                    <dl class="mt-4 grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                            <dt class="text-xs text-slate-500 dark:text-slate-400">Sites</dt>
+                            <dd class="mt-0.5 font-medium text-slate-700 dark:text-slate-300">{{ user.sites_count }} / {{ siteLimit }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs text-slate-500 dark:text-slate-400">Registered</dt>
+                            <dd class="mt-0.5 text-slate-600 dark:text-slate-400">{{ user.created_at }}</dd>
+                        </div>
+                    </dl>
+
+                    <div class="mt-4 flex flex-wrap gap-4 border-t border-slate-100 pt-4 dark:border-slate-800">
+                        <label class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                            <ToggleSwitch
+                                :model-value="user.email_verified"
+                                label="Email verified"
+                                @update:model-value="setVerified(user, $event)"
+                            />
+                            Verified
+                        </label>
+                        <label class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                            <ToggleSwitch
+                                :model-value="user.is_active"
+                                label="Account active"
+                                :disabled="user.id === currentUserId && user.is_active"
+                                @update:model-value="setActive(user, $event)"
+                            />
+                            Active
+                        </label>
+                        <label class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                            <ToggleSwitch
+                                :model-value="user.is_admin"
+                                label="Admin access"
+                                :disabled="user.id === currentUserId && user.is_admin"
+                                @update:model-value="setAdmin(user, $event)"
+                            />
+                            Admin
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hidden overflow-x-auto md:block">
                 <table class="min-w-full text-sm">
                     <thead>
                         <tr class="border-b border-slate-200 text-left text-slate-500 dark:border-slate-700 dark:text-slate-400">
@@ -82,48 +149,27 @@ const deleteUser = () => {
                             <td class="py-3 pr-4">{{ user.sites_count }} / {{ siteLimit }}</td>
                             <td class="py-3 pr-4 text-slate-500 dark:text-slate-400">{{ user.created_at }}</td>
                             <td class="py-3 pr-4">
-                                <button
-                                    type="button"
-                                    class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition"
-                                    :class="user.email_verified ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-700'"
-                                    :title="user.email_verified ? 'Mark as unverified' : 'Mark as verified'"
-                                    @click="toggleVerified(user)"
-                                >
-                                    <span
-                                        class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition"
-                                        :class="user.email_verified ? 'translate-x-5' : 'translate-x-0'"
-                                    />
-                                </button>
+                                <ToggleSwitch
+                                    :model-value="user.email_verified"
+                                    :label="user.email_verified ? 'Mark as unverified' : 'Mark as verified'"
+                                    @update:model-value="setVerified(user, $event)"
+                                />
                             </td>
                             <td class="py-3 pr-4">
-                                <button
-                                    type="button"
-                                    class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition"
-                                    :class="user.is_active ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-700'"
+                                <ToggleSwitch
+                                    :model-value="user.is_active"
+                                    :label="user.id === currentUserId && user.is_active ? 'Cannot disable your own account' : (user.is_active ? 'Disable user' : 'Enable user')"
                                     :disabled="user.id === currentUserId && user.is_active"
-                                    :title="user.id === currentUserId && user.is_active ? 'Cannot disable your own account' : (user.is_active ? 'Disable user' : 'Enable user')"
-                                    @click="toggleActive(user)"
-                                >
-                                    <span
-                                        class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition"
-                                        :class="user.is_active ? 'translate-x-5' : 'translate-x-0'"
-                                    />
-                                </button>
+                                    @update:model-value="setActive(user, $event)"
+                                />
                             </td>
                             <td class="py-3 pr-4">
-                                <button
-                                    type="button"
-                                    class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition"
-                                    :class="user.is_admin ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-700'"
+                                <ToggleSwitch
+                                    :model-value="user.is_admin"
+                                    :label="user.id === currentUserId && user.is_admin ? 'Cannot remove your own admin access' : 'Toggle admin access'"
                                     :disabled="user.id === currentUserId && user.is_admin"
-                                    :title="user.id === currentUserId && user.is_admin ? 'Cannot remove your own admin access' : ''"
-                                    @click="toggleAdmin(user)"
-                                >
-                                    <span
-                                        class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition"
-                                        :class="user.is_admin ? 'translate-x-5' : 'translate-x-0'"
-                                    />
-                                </button>
+                                    @update:model-value="setAdmin(user, $event)"
+                                />
                             </td>
                             <td class="py-3">
                                 <button
@@ -156,12 +202,8 @@ const deleteUser = () => {
             </div>
         </div>
 
-        <div
-            v-if="userToDelete"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-            @click.self="closeDeleteModal"
-        >
-            <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-slate-900">
+        <Modal :show="Boolean(userToDelete)" max-width="md" @close="closeDeleteModal">
+            <div v-if="userToDelete" class="p-6">
                 <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Delete user?</h3>
                 <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
                     This will permanently delete
@@ -178,6 +220,6 @@ const deleteUser = () => {
                     </button>
                 </div>
             </div>
-        </div>
+        </Modal>
     </AdminLayout>
 </template>

@@ -11,6 +11,41 @@
         @apply antialiased bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100;
     }
 
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: rgb(203 213 225 / 0.55) transparent;
+    }
+
+    *::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    *::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background-color: rgb(203 213 225 / 0.55);
+        border-radius: 9999px;
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+        background-color: rgb(148 163 184 / 0.75);
+    }
+
+    .dark * {
+        scrollbar-color: rgb(71 85 105 / 0.65) transparent;
+    }
+
+    .dark *::-webkit-scrollbar-thumb {
+        background-color: rgb(71 85 105 / 0.65);
+    }
+
+    .dark *::-webkit-scrollbar-thumb:hover {
+        background-color: rgb(100 116 139 / 0.85);
+    }
+
     input:not([type='checkbox']):not([type='radio']):not([type='range']),
     textarea,
     select {
@@ -317,23 +352,14 @@
 
     input.vm-input:not([type='checkbox']):not([type='radio']):not([type='range']),
     textarea.vm-input,
-    select.vm-input {
-        @apply w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500;
-        background-color: #ffffff !important;
-        color: #0f172a !important;
+    select.vm-input,
+    button.vm-input {
+        @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200;
     }
 
     input.vm-input:not([type='checkbox']):not([type='radio']):not([type='range'])::placeholder,
     textarea.vm-input::placeholder {
-        color: #94a3b8 !important;
-    }
-
-    .dark input.vm-input:not([type='checkbox']):not([type='radio']):not([type='range']),
-    .dark textarea.vm-input,
-    .dark select.vm-input {
-        border-color: #cbd5e1 !important;
-        background-color: #ffffff !important;
-        color: #0f172a !important;
+        @apply text-slate-400 dark:text-slate-500;
     }
 
     input.vm-input:-webkit-autofill,
@@ -342,6 +368,14 @@
         -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
         -webkit-text-fill-color: #0f172a !important;
         caret-color: #0f172a;
+    }
+
+    .dark input.vm-input:-webkit-autofill,
+    .dark input.vm-input:-webkit-autofill:hover,
+    .dark input.vm-input:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0 1000px #1e293b inset !important;
+        -webkit-text-fill-color: #e2e8f0 !important;
+        caret-color: #e2e8f0;
     }
 
     input.vm-marketing-input:not([type='checkbox']):not([type='radio']):not([type='range']) {
@@ -368,12 +402,28 @@
         caret-color: #44403c;
     }
 
+    .vm-page-header {
+        @apply mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between;
+    }
+
+    .vm-page-title {
+        @apply text-xl font-semibold tracking-tight text-slate-900 dark:text-white sm:text-2xl;
+    }
+
+    .vm-page-description {
+        @apply mt-1 text-sm leading-relaxed text-slate-500 dark:text-slate-400;
+    }
+
+    .vm-page-actions {
+        @apply flex w-full shrink-0 flex-wrap items-center gap-2 sm:w-auto sm:justify-end;
+    }
+
     .vm-panel-title {
         @apply text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400;
     }
 
     .vm-code-block {
-        @apply relative overflow-hidden rounded-lg border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-950;
+        @apply relative overflow-x-auto rounded-lg border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-950;
     }
 
     .vm-code-textarea {

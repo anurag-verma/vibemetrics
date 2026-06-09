@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\DailyStat;
 use App\Models\Site;
 use App\Models\User;
+use App\Support\AnalyticsDateRange;
+use App\Support\AnalyticsSql;
 use App\Support\DateFormatter;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -17,21 +19,19 @@ class PlatformAnalyticsService
     ) {}
 
     /** @return array<string, mixed> */
-    public function overview(int $range = 30): array
+    public function overview(AnalyticsDateRange $range): array
     {
-        $range = in_array($range, config('analytics.allowed_ranges', [7, 30, 90]), true) ? $range : 30;
-
         $pageViewsToday = $this->pageViewsOnDate(today());
         $pageViewsYesterday = $this->pageViewsOnDate(today()->subDay());
 
         return [
-            'range' => $range,
+            'dateRange' => $range->toQueryParams() + ['label' => $range->label],
             'kpis' => $this->kpis($pageViewsToday, $pageViewsYesterday),
             'system' => $this->systemStatus(),
             'registrationTrend' => $this->registrationTrend($range),
             'trafficTrend' => $this->trafficTrend($range),
             'ingestionRate' => $this->ingestionRate(),
-            'topSites' => $this->topSites(min($range, 30)),
+            'topSites' => $this->topSites($range),
             'recentActivity' => $this->recentActivity(),
         ];
     }
@@ -79,13 +79,16 @@ class PlatformAnalyticsService
     }
 
     /** @return list<array{date: string, count: int}> */
-    private function registrationTrend(int $days): array
+    private function registrationTrend(AnalyticsDateRange $range): array
     {
-        $startDate = now()->subDays($days - 1)->startOfDay();
+        $startDate = $range->startLocal->copy()->startOfDay();
+        $endDate = $range->endLocal->copy()->startOfDay();
+        $days = $range->dayCount();
 
         $counts = User::query()
             ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
-            ->where('created_at', '>=', $startDate)
+            ->where('created_at', '>=', $range->startUtc())
+            ->where('created_at', '<=', $range->endUtc())
             ->groupBy('date')
             ->orderBy('date')
             ->pluck('count', 'date');
@@ -94,9 +97,10 @@ class PlatformAnalyticsService
     }
 
     /** @return list<array{date: string, count: int}> */
-    private function trafficTrend(int $days): array
+    private function trafficTrend(AnalyticsDateRange $range): array
     {
-        $startDate = now()->subDays($days - 1)->startOfDay();
+        $startDate = $range->startLocal->copy()->startOfDay();
+        $days = $range->dayCount();
         $yesterday = now()->subDay()->toDateString();
 
         $rollupCounts = DailyStat::query()
@@ -107,19 +111,16 @@ class PlatformAnalyticsService
             ->orderBy('date')
             ->pluck('count', 'date');
 
-        $todayLive = $this->pageViewsOnDate(today());
+        $liveCounts = DB::table('page_views')
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+            ->where('created_at', '>=', $range->startUtc())
+            ->where('created_at', '<=', $range->endUtc())
+            ->groupBy('date')
+            ->pluck('count', 'date');
 
-        $trend = $this->fillDateRange($startDate, $days, $rollupCounts);
+        $counts = collect($rollupCounts)->merge($liveCounts)->all();
 
-        if ($todayLive > 0) {
-            $todayKey = today()->toDateString();
-            $lastIndex = count($trend) - 1;
-            if ($lastIndex >= 0 && $trend[$lastIndex]['date'] === $todayKey) {
-                $trend[$lastIndex]['count'] += $todayLive;
-            }
-        }
-
-        return $trend;
+        return $this->fillDateRange($startDate, $days, $counts);
     }
 
     /** @return list<array{hour: string, count: int}> */
@@ -157,11 +158,13 @@ class PlatformAnalyticsService
     }
 
     /** @return list<array<string, mixed>> */
-    private function topSites(int $days): array
+    private function topSites(AnalyticsDateRange $range): array
     {
-        $since = now()->subDays($days - 1)->startOfDay();
+        $since = $range->startUtc();
+        $until = $range->endUtc();
         $totalEvents = (int) DB::table('page_views')
             ->where('created_at', '>=', $since)
+            ->where('created_at', '<=', $until)
             ->count();
 
         $sites = DB::table('page_views')
@@ -177,6 +180,7 @@ class PlatformAnalyticsService
                 DB::raw('COUNT(*) as page_views'),
             )
             ->where('page_views.created_at', '>=', $since)
+            ->where('page_views.created_at', '<=', $until)
             ->groupBy('sites.id', 'sites.name', 'sites.domain', 'sites.is_paused', 'users.id', 'users.email')
             ->orderByDesc('page_views')
             ->limit(10)
@@ -242,7 +246,8 @@ class PlatformAnalyticsService
     {
         return (int) DB::table('page_views')
             ->where('created_at', '>=', now()->subMinutes(5))
-            ->count();
+            ->selectRaw('COUNT(DISTINCT '.AnalyticsSql::visitorFingerprintExpression().') as aggregate')
+            ->value('aggregate');
     }
 
     /**

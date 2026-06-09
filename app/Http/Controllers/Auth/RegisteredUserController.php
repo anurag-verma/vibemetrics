@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterUserRequest;
 use App\Models\User;
 use App\Services\PlatformSettingsService;
+use App\Support\TimezoneList;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -36,6 +37,7 @@ class RegisteredUserController extends Controller
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'timezone' => TimezoneList::resolve($validated['timezone'] ?? null),
             'password' => Hash::make($validated['password']),
         ]);
 

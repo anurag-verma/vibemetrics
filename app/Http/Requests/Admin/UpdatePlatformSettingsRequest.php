@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\DateRangePreset;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdatePlatformSettingsRequest extends FormRequest
 {
@@ -28,7 +28,7 @@ class UpdatePlatformSettingsRequest extends FormRequest
             'rollup_enabled' => ['required', 'boolean'],
             'collect_rate_limit' => ['required', 'integer', 'min:10', 'max:1000'],
             'registration_enabled' => ['required', 'boolean'],
-            'default_analytics_range' => ['required', 'integer', Rule::in([7, 30, 90])],
+            'default_date_range' => ['required', 'string', 'max:32', new DateRangePreset],
             'maintenance_mode' => ['required', 'boolean'],
             'app_display_name' => ['required', 'string', 'max:80'],
             'support_email' => ['nullable', 'email', 'max:255'],

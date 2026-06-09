@@ -1,5 +1,6 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
+import PageHeader from '@/Components/PageHeader.vue';
 import { Head, Link } from '@inertiajs/vue3';
 
 defineProps({
@@ -32,11 +33,11 @@ const steps = [
     <Head title="Getting Started" />
 
     <AppLayout>
-        <template #header>
-            <h1 class="text-lg font-semibold text-slate-900 dark:text-white">Getting started</h1>
-        </template>
-
         <div class="mx-auto max-w-2xl space-y-6">
+            <PageHeader
+                title="Getting started"
+                description="Add your first website and start collecting privacy-friendly analytics."
+            />
             <div class="vm-card overflow-hidden">
                 <div class="border-b border-slate-100 bg-gradient-to-br from-emerald-50/80 to-indigo-50/50 px-6 py-8 text-center dark:border-slate-800 dark:from-emerald-950/30 dark:to-indigo-950/20">
                     <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-400">

@@ -53,4 +53,22 @@ class UserTest extends TestCase
 
         $this->assertDatabaseHas('users', ['id' => $target->id]);
     }
+
+    public function test_admin_cannot_delete_last_admin_account(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $otherAdmin = User::factory()->create(['is_admin' => true]);
+
+        $this->actingAs($admin)
+            ->delete(route('admin.users.destroy', $otherAdmin))
+            ->assertRedirect()
+            ->assertSessionHas('success', 'User deleted.');
+
+        $this->actingAs($admin)
+            ->delete(route('admin.users.destroy', $admin))
+            ->assertRedirect()
+            ->assertSessionHas('error', 'You cannot delete your own account.');
+
+        $this->assertDatabaseHas('users', ['id' => $admin->id]);
+    }
 }

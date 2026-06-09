@@ -1,7 +1,9 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import PageHeader from '@/Components/PageHeader.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import { Head, router, useForm, usePage } from '@inertiajs/vue3';
+import { DATE_RANGE_PRESETS } from '@/data/dateRanges';
 import { computed, ref } from 'vue';
 
 const props = defineProps({
@@ -15,7 +17,7 @@ const form = useForm({
     rollup_enabled: props.settings.rollup_enabled,
     collect_rate_limit: props.settings.collect_rate_limit,
     registration_enabled: props.settings.registration_enabled,
-    default_analytics_range: props.settings.default_analytics_range,
+    default_date_range: props.settings.default_date_range ?? 'last_30_days',
     maintenance_mode: props.settings.maintenance_mode,
     app_display_name: props.settings.app_display_name ?? props.branding.appName,
     support_email: props.settings.support_email ?? '',
@@ -91,14 +93,11 @@ const assets = computed(() => [
     <Head title="Admin — Settings" />
 
     <AdminLayout>
-        <template #header>
-            <div>
-                <h1 class="text-lg font-semibold text-slate-900 dark:text-white">Platform settings</h1>
-                <p class="text-sm text-slate-500 dark:text-slate-400">Changes apply immediately across the platform</p>
-            </div>
-        </template>
-
         <form class="mx-auto max-w-2xl space-y-6" @submit.prevent="submit">
+            <PageHeader
+                title="Platform settings"
+                description="Changes apply immediately across the platform."
+            />
             <div class="vm-card space-y-4">
                 <h3 class="vm-panel-title">Branding</h3>
                 <p class="text-sm text-slate-500 dark:text-slate-400">
@@ -194,11 +193,15 @@ const assets = computed(() => [
                     <span class="text-sm text-slate-700 dark:text-slate-300">Enable nightly rollup</span>
                 </label>
                 <div>
-                    <InputLabel for="default_analytics_range" value="Default dashboard range (days)" />
-                    <select id="default_analytics_range" v-model.number="form.default_analytics_range" class="vm-input mt-1">
-                        <option :value="7">7 days</option>
-                        <option :value="30">30 days</option>
-                        <option :value="90">90 days</option>
+                    <InputLabel for="default_date_range" value="Default dashboard date range" />
+                    <select id="default_date_range" v-model="form.default_date_range" class="vm-input mt-1">
+                        <option
+                            v-for="preset in DATE_RANGE_PRESETS.filter((item) => item.value !== 'custom')"
+                            :key="preset.value"
+                            :value="preset.value"
+                        >
+                            {{ preset.label }}
+                        </option>
                     </select>
                 </div>
             </div>

@@ -1,5 +1,6 @@
 <script setup>
 import AdminDateRangePicker from '@/Components/AdminDateRangePicker.vue';
+import PageHeader from '@/Components/PageHeader.vue';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import MetricCard from '@/Components/MetricCard.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
@@ -23,7 +24,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Filler, Legend);
 
 const props = defineProps({
-    range: Number,
+    dateRange: Object,
     kpis: Object,
     system: Object,
     registrationTrend: Array,
@@ -125,13 +126,12 @@ const hasIngestion = computed(() => props.ingestionRate.some((d) => d.count > 0)
     <Head title="Admin Overview" />
 
     <AdminLayout>
-        <template #header>
-            <div class="flex flex-1 flex-wrap items-center justify-between gap-3">
-                <div>
-                    <h1 class="text-lg font-semibold text-slate-900 dark:text-white">Platform overview</h1>
-                    <p class="text-sm text-slate-500 dark:text-slate-400">System health, growth, and ingestion</p>
-                </div>
-                <div class="flex items-center gap-2">
+        <div class="mx-auto max-w-7xl space-y-6">
+            <PageHeader
+                title="Platform overview"
+                description="System health, growth, and ingestion."
+            >
+                <template #actions>
                     <span class="hidden text-xs text-slate-500 dark:text-slate-400 sm:inline">{{ lastUpdatedLabel }}</span>
                     <button
                         type="button"
@@ -150,12 +150,9 @@ const hasIngestion = computed(() => props.ingestionRate.some((d) => d.count > 0)
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
                     </button>
-                    <AdminDateRangePicker :model-value="range" />
-                </div>
-            </div>
-        </template>
-
-        <div class="mx-auto max-w-7xl space-y-6">
+                    <AdminDateRangePicker :date-range="dateRange" />
+                </template>
+            </PageHeader>
             <div class="flex flex-wrap gap-2">
                 <span
                     class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
@@ -229,14 +226,14 @@ const hasIngestion = computed(() => props.ingestionRate.some((d) => d.count > 0)
 
             <div class="grid gap-4 lg:grid-cols-2">
                 <div class="vm-card">
-                    <h3 class="vm-panel-title mb-4">Registrations ({{ range }}d)</h3>
+                    <h3 class="vm-panel-title mb-4">Registrations ({{ dateRange.label }})</h3>
                     <div v-if="hasRegistrations" class="h-56">
                         <Line :data="regChart" :options="chartOptions" />
                     </div>
                     <p v-else class="flex h-56 items-center justify-center text-sm text-slate-400">No signups in this period</p>
                 </div>
                 <div class="vm-card">
-                    <h3 class="vm-panel-title mb-4">Platform traffic ({{ range }}d)</h3>
+                    <h3 class="vm-panel-title mb-4">Platform traffic ({{ dateRange.label }})</h3>
                     <div v-if="hasTraffic" class="h-56">
                         <Line :data="trafficChart" :options="chartOptions" />
                     </div>
@@ -282,7 +279,7 @@ const hasIngestion = computed(() => props.ingestionRate.some((d) => d.count > 0)
 
             <div class="vm-card overflow-hidden">
                 <div class="mb-4 flex items-center justify-between">
-                    <h3 class="vm-panel-title">Top sites by volume ({{ range }}d)</h3>
+                    <h3 class="vm-panel-title">Top sites by volume ({{ dateRange.label }})</h3>
                     <Link :href="route('admin.sites.index')" class="text-xs font-medium text-indigo-600 hover:underline dark:text-indigo-400">
                         View all sites →
                     </Link>

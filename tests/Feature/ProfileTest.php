@@ -71,6 +71,46 @@ class ProfileTest extends TestCase
         $this->assertSame('José García', $user->refresh()->name);
     }
 
+    public function test_profile_default_date_range_can_be_updated(): void
+    {
+        $user = User::factory()->create([
+            'default_date_range' => 'last_30_days',
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->patch('/profile', [
+                'name' => $user->name,
+                'default_date_range' => 'last_7_days',
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/profile');
+
+        $this->assertSame('last_7_days', $user->refresh()->default_date_range);
+    }
+
+    public function test_profile_timezone_can_be_updated(): void
+    {
+        $user = User::factory()->create([
+            'timezone' => 'UTC',
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->patch('/profile', [
+                'name' => $user->name,
+                'timezone' => 'Asia/Kolkata',
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/profile');
+
+        $this->assertSame('Asia/Kolkata', $user->refresh()->timezone);
+    }
+
     public function test_email_cannot_be_changed_via_profile(): void
     {
         $user = User::factory()->create([
@@ -125,5 +165,20 @@ class ProfileTest extends TestCase
             ->assertRedirect('/profile');
 
         $this->assertNotNull($user->fresh());
+    }
+
+    public function test_last_admin_cannot_delete_their_account(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+
+        $this->actingAs($admin)
+            ->from('/profile')
+            ->delete('/profile', [
+                'password' => 'password',
+            ])
+            ->assertRedirect('/profile')
+            ->assertSessionHas('error', 'You cannot delete the last admin account.');
+
+        $this->assertDatabaseHas('users', ['id' => $admin->id]);
     }
 }

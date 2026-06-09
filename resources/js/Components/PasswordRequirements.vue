@@ -58,7 +58,7 @@ const showPanel = computed(() => props.visible && props.password.length > 0 && !
                 />
             </div>
 
-            <ul class="grid grid-cols-2 gap-x-3 gap-y-2">
+            <ul class="grid grid-cols-1 gap-x-3 gap-y-2 sm:grid-cols-2">
                 <li
                     v-for="item in items"
                     :key="item.key"

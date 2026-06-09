@@ -29,6 +29,14 @@ class UserAgentParser
             return 'Opera';
         }
 
+        if (preg_match('/CriOS\/([\d.]+)/', $ua)) {
+            return 'Chrome';
+        }
+
+        if (preg_match('/FxiOS\/([\d.]+)/', $ua)) {
+            return 'Firefox';
+        }
+
         if (preg_match('/Chrome\/([\d.]+)/', $ua) && ! preg_match('/Edg/', $ua)) {
             return 'Chrome';
         }
@@ -46,20 +54,20 @@ class UserAgentParser
 
     private function parseOs(string $ua): string
     {
-        if (preg_match('/Windows NT/', $ua)) {
-            return 'Windows';
+        if (preg_match('/iPhone|iPad|iPod/', $ua)) {
+            return 'iOS';
         }
 
-        if (preg_match('/Mac OS X|Macintosh/', $ua)) {
-            return 'macOS';
+        if (preg_match('/Windows NT/', $ua)) {
+            return 'Windows';
         }
 
         if (preg_match('/Android/', $ua)) {
             return 'Android';
         }
 
-        if (preg_match('/iPhone|iPad|iPod/', $ua)) {
-            return 'iOS';
+        if (preg_match('/Mac OS X|Macintosh/', $ua)) {
+            return 'macOS';
         }
 
         if (preg_match('/Linux/', $ua)) {

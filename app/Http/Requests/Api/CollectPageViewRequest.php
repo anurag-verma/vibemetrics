@@ -18,6 +18,7 @@ class CollectPageViewRequest extends FormRequest
             'tracking_id' => ['required', 'uuid'],
             'url' => ['required', 'url', 'max:2048'],
             'referrer' => ['nullable', 'string', 'max:2048'],
+            'visitor_id' => ['nullable', 'uuid'],
             'device' => ['nullable', 'in:desktop,mobile,tablet'],
             'utm_source' => ['nullable', 'string', 'max:100'],
             'utm_medium' => ['nullable', 'string', 'max:100'],

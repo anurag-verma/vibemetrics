@@ -1,4 +1,5 @@
 <script setup>
+import DocsSectionNav from '@/Components/DocsSectionNav.vue';
 import { Link } from '@inertiajs/vue3';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
@@ -58,31 +59,21 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="grid gap-8 lg:grid-cols-[200px_1fr] lg:gap-12">
-        <aside class="hidden lg:block">
-            <nav class="sticky top-6 space-y-1">
-                <a
-                    v-for="item in sections"
-                    :key="item.id"
-                    :href="`#${item.id}`"
-                    class="block rounded-lg px-3 py-2 text-sm text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
-                >
-                    {{ item.label }}
-                </a>
-            </nav>
-        </aside>
+    <div class="min-w-0">
+        <div class="grid gap-6 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-12">
+            <DocsSectionNav :sections="sections" variant="app" />
 
-        <div class="min-w-0 space-y-10">
-            <section id="getting-started" class="scroll-mt-24">
+            <div class="min-w-0 overflow-x-hidden space-y-8 sm:space-y-10">
+            <section id="getting-started" class="scroll-mt-36 lg:scroll-mt-24">
                 <h2 class="text-xl font-semibold text-slate-900 dark:text-white">Getting started</h2>
                 <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
                     Three steps from zero to live analytics on your site.
                 </p>
 
                 <ol class="mt-6 space-y-4">
-                    <li class="vm-card flex gap-4 p-5">
+                    <li class="vm-card flex gap-4 p-4 sm:p-5">
                         <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">1</span>
-                        <div>
+                        <div class="min-w-0">
                             <h3 class="font-semibold text-slate-900 dark:text-white">Add your website</h3>
                             <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
                                 Open <Link :href="route('sites.index')" class="text-indigo-600 hover:underline dark:text-indigo-400">Websites</Link>
@@ -90,9 +81,9 @@ onUnmounted(() => {
                             </p>
                         </div>
                     </li>
-                    <li class="vm-card flex gap-4 p-5">
+                    <li class="vm-card flex gap-4 p-4 sm:p-5">
                         <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">2</span>
-                        <div>
+                        <div class="min-w-0">
                             <h3 class="font-semibold text-slate-900 dark:text-white">Install the tracker</h3>
                             <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
                                 Copy the embed snippet from your site settings and paste it before the closing
@@ -100,9 +91,9 @@ onUnmounted(() => {
                             </p>
                         </div>
                     </li>
-                    <li class="vm-card flex gap-4 p-5">
+                    <li class="vm-card flex gap-4 p-4 sm:p-5">
                         <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">3</span>
-                        <div>
+                        <div class="min-w-0">
                             <h3 class="font-semibold text-slate-900 dark:text-white">Verify in the dashboard</h3>
                             <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
                                 Visit your site, then check the overview for pageviews, referrers, and live visitors.
@@ -113,7 +104,7 @@ onUnmounted(() => {
                 </ol>
             </section>
 
-            <section id="install" class="scroll-mt-24">
+            <section id="install" class="scroll-mt-36 lg:scroll-mt-24">
                 <h2 class="text-xl font-semibold text-slate-900 dark:text-white">Install script</h2>
                 <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
                     Replace <code class="rounded bg-slate-100 px-1.5 py-0.5 text-xs dark:bg-slate-800">YOUR_TRACKING_ID</code>
@@ -156,7 +147,7 @@ onUnmounted(() => {
                 </div>
             </section>
 
-            <section id="spa" class="scroll-mt-24">
+            <section id="spa" class="scroll-mt-36 lg:scroll-mt-24">
                 <h2 class="text-xl font-semibold text-slate-900 dark:text-white">SPA support</h2>
                 <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
                     VibeMetrics automatically tracks route changes in single-page applications.
@@ -184,14 +175,14 @@ onUnmounted(() => {
                 </ul>
             </section>
 
-            <section id="utm" class="scroll-mt-24">
+            <section id="utm" class="scroll-mt-36 lg:scroll-mt-24">
                 <h2 class="text-xl font-semibold text-slate-900 dark:text-white">UTM tracking</h2>
                 <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
                     Standard UTM query parameters are captured automatically and appear in your campaign reports.
                 </p>
 
-                <div class="vm-card mt-4 overflow-hidden">
-                    <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-700">
+                <div class="vm-card mt-4 overflow-x-auto">
+                    <table class="min-w-[32rem] divide-y divide-slate-200 text-sm sm:min-w-full dark:divide-slate-700">
                         <thead class="bg-slate-50 dark:bg-slate-800/50">
                             <tr>
                                 <th class="px-4 py-3 text-left font-semibold text-slate-900 dark:text-white">Parameter</th>
@@ -217,7 +208,7 @@ onUnmounted(() => {
                 </p>
             </section>
 
-            <section id="dashboard" class="scroll-mt-24">
+            <section id="dashboard" class="scroll-mt-36 lg:scroll-mt-24">
                 <h2 class="text-xl font-semibold text-slate-900 dark:text-white">Dashboard</h2>
                 <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
                     Once tracking is live, your dashboard shows everything you need at a glance.
@@ -242,7 +233,7 @@ onUnmounted(() => {
                 </div>
             </section>
 
-            <section id="privacy" class="vm-card scroll-mt-24 p-6">
+            <section id="privacy" class="vm-card scroll-mt-36 p-4 sm:p-6 lg:scroll-mt-24">
                 <h2 class="text-xl font-semibold text-slate-900 dark:text-white">Privacy</h2>
                 <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
                     VibeMetrics is built privacy-first. No cookies, no IP address storage, and no cross-site tracking.
@@ -260,6 +251,7 @@ onUnmounted(() => {
                     </svg>
                 </a>
             </section>
+            </div>
         </div>
     </div>
 </template>

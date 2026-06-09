@@ -23,6 +23,8 @@ const cellMap = computed(() => {
     return map;
 });
 
+const cellCount = (dayIndex, hour) => cellMap.value[`${dayIndex}-${hour}`] ?? 0;
+
 const intensity = (count) => {
     if (count === 0) {
         return 0;
@@ -30,6 +32,8 @@ const intensity = (count) => {
 
     return 0.15 + (count / maxCount.value) * 0.85;
 };
+
+const cellLabel = (dayLabel, hour) => `${dayLabel} ${hour}:00, ${cellCount(dayLabels.indexOf(dayLabel), hour)} views`;
 </script>
 
 <template>
@@ -37,37 +41,44 @@ const intensity = (count) => {
         <h3 class="vm-panel-title mb-4">Traffic</h3>
 
         <div v-if="cells.some((cell) => cell.count > 0)" class="overflow-x-auto">
-            <div class="min-w-[520px]">
-                <div class="mb-2 grid grid-cols-[2.5rem_repeat(24,1fr)] gap-0.5">
-                    <div />
-                    <div
-                        v-for="hour in 24"
-                        :key="hour"
-                        class="text-center text-[9px] text-slate-400"
-                    >
-                        <span v-if="(hour - 1) % 3 === 0">{{ hourLabels[Math.floor((hour - 1) / 3)] ?? '' }}</span>
-                    </div>
-                </div>
-
-                <div
-                    v-for="(dayLabel, dayIndex) in dayLabels"
-                    :key="dayLabel"
-                    class="mb-0.5 grid grid-cols-[2.5rem_repeat(24,1fr)] items-center gap-0.5"
-                >
-                    <span class="text-[10px] font-medium text-slate-500 dark:text-slate-400">{{ dayLabel }}</span>
-                    <div
-                        v-for="hour in 24"
-                        :key="`${dayIndex}-${hour}`"
-                        class="aspect-square rounded-sm"
-                        :title="`${dayLabel} ${hour - 1}:00 — ${cellMap[`${dayIndex}-${hour - 1}`] ?? 0} views`"
-                        :style="{
-                            backgroundColor: (cellMap[`${dayIndex}-${hour - 1}`] ?? 0) > 0
-                                ? `rgba(99, 102, 241, ${intensity(cellMap[`${dayIndex}-${hour - 1}`] ?? 0)})`
-                                : 'rgba(148, 163, 184, 0.12)',
-                        }"
-                    />
-                </div>
-            </div>
+            <table class="min-w-[520px] border-collapse" role="grid" aria-label="Traffic heatmap by day and hour">
+                <thead>
+                    <tr>
+                        <th class="w-10" scope="col"><span class="sr-only">Day</span></th>
+                        <th
+                            v-for="hour in 24"
+                            :key="`head-${hour}`"
+                            scope="col"
+                            class="px-0 text-center text-[9px] font-normal text-slate-400"
+                        >
+                            <span v-if="(hour - 1) % 3 === 0">{{ hourLabels[Math.floor((hour - 1) / 3)] ?? '' }}</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(dayLabel, dayIndex) in dayLabels" :key="dayLabel">
+                        <th scope="row" class="pr-1 text-left text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                            {{ dayLabel }}
+                        </th>
+                        <td
+                            v-for="hour in 24"
+                            :key="`${dayIndex}-${hour}`"
+                            role="gridcell"
+                            class="p-0.5"
+                            :aria-label="cellLabel(dayLabel, hour - 1)"
+                        >
+                            <div
+                                class="aspect-square rounded-sm"
+                                :style="{
+                                    backgroundColor: cellCount(dayIndex, hour - 1) > 0
+                                        ? `rgba(99, 102, 241, ${intensity(cellCount(dayIndex, hour - 1))})`
+                                        : 'rgba(148, 163, 184, 0.12)',
+                                }"
+                            />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         <p v-else class="flex min-h-[200px] items-center justify-center text-sm text-slate-400">

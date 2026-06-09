@@ -3,39 +3,50 @@
 namespace App\Http\Controllers;
 
 use App\Models\Site;
+use App\Services\AnalyticsDateRangeResolver;
 use App\Services\SiteAnalyticsService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ExportController extends Controller
 {
-    public function show(Site $site, Request $request, SiteAnalyticsService $analytics): StreamedResponse
-    {
+    public function show(
+        Site $site,
+        Request $request,
+        SiteAnalyticsService $analytics,
+        AnalyticsDateRangeResolver $rangeResolver,
+    ): StreamedResponse {
         $this->authorize('view', $site);
 
-        $range = (int) $request->query('range', 30);
+        $user = $request->user();
+        $dateRange = $rangeResolver->resolve(
+            $request,
+            $user->preferredTimezone(),
+            $user->default_date_range,
+        );
 
-        if (! in_array($range, config('analytics.allowed_ranges', [7, 30, 90]), true)) {
-            $range = 30;
-        }
+        $metrics = $analytics->aggregate($site, $dateRange, $user->preferredTimezone());
+        $filename = sprintf(
+            '%s-analytics-%s-%s.csv',
+            $site->domain,
+            $dateRange->preset,
+            now()->format('Y-m-d')
+        );
 
-        $metrics = $analytics->aggregate($site, $range);
-        $filename = sprintf('%s-analytics-%dd-%s.csv', $site->domain, $range, now()->format('Y-m-d'));
-
-        return response()->streamDownload(function () use ($metrics, $site, $range): void {
+        return response()->streamDownload(function () use ($metrics, $site, $dateRange): void {
             $handle = fopen('php://output', 'w');
 
             fputcsv($handle, ['VibeMetrics Export']);
             fputcsv($handle, ['Site', $site->name]);
             fputcsv($handle, ['Domain', $site->domain]);
-            fputcsv($handle, ['Range (days)', $range]);
+            fputcsv($handle, ['Date range', $metrics['date_range']['label'] ?? $dateRange->label]);
             fputcsv($handle, []);
             fputcsv($handle, ['Total Page Views', $metrics['total_page_views']]);
             fputcsv($handle, ['Unique Visitors', $metrics['unique_visitors']]);
             fputcsv($handle, ['Live Visitors (5 min)', $metrics['live_visitors']]);
             fputcsv($handle, []);
-            fputcsv($handle, ['Daily Trend']);
-            fputcsv($handle, ['Date', 'Page Views', 'Visitors']);
+            fputcsv($handle, ['Trend']);
+            fputcsv($handle, ['Period', 'Page Views', 'Visitors']);
 
             foreach ($metrics['daily_trend'] as $index => $row) {
                 $visitors = $metrics['visitors_trend'][$index]['count'] ?? 0;

@@ -14,7 +14,7 @@ const currentYear = useCurrentYear();
             <Logo size="lg" href="/" />
         </div>
 
-        <div class="w-full max-w-md overflow-hidden rounded-2xl border border-slate-200/80 bg-white/80 p-8 shadow-xl shadow-slate-200/50 backdrop-blur-sm">
+        <div class="w-full max-w-md overflow-hidden rounded-2xl border border-slate-200/80 bg-white/80 p-6 shadow-xl shadow-slate-200/50 backdrop-blur-sm sm:p-8">
             <slot />
         </div>
 
