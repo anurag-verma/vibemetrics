@@ -19,7 +19,7 @@
 <x-slot:subcopy>
 <x-mail::subcopy>
 {!! $subcopy !!}
-</x-slot:subcopy>
+</x-mail::subcopy>
 </x-slot:subcopy>
 @endisset
 
