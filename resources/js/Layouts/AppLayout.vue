@@ -51,7 +51,7 @@ useEscapeKey(sidebarOpen, closeSidebar);
 </script>
 
 <template>
-    <div class="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950">
+    <div class="app-shell flex h-full overflow-hidden bg-slate-50 dark:bg-slate-950">
         <FlashToast />
 
         <div
@@ -63,7 +63,7 @@ useEscapeKey(sidebarOpen, closeSidebar);
 
         <aside
             id="app-sidebar"
-            class="fixed inset-y-0 left-0 z-50 flex h-screen shrink-0 flex-col border-r border-slate-800 bg-slate-900 transition-all duration-200 lg:static lg:translate-x-0"
+            class="fixed inset-y-0 left-0 z-50 flex h-full shrink-0 flex-col border-r border-slate-800 bg-slate-900 transition-all duration-200 lg:static lg:translate-x-0"
             :class="[
                 sidebarOpen ? 'translate-x-0' : '-translate-x-full',
                 isDesktopCollapsed ? 'w-64 lg:w-[4.5rem]' : 'w-64',

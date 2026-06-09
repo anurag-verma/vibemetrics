@@ -7,6 +7,20 @@
         scroll-behavior: smooth;
     }
 
+    html:has(.app-shell) {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    html:has(.app-shell) body {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    html:has(.app-shell) #app {
+        height: 100%;
+    }
+
     body {
         @apply antialiased bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100;
     }

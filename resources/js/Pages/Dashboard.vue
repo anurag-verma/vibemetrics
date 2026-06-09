@@ -1,7 +1,6 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
-import CountryMap from '@/Components/CountryMap.vue';
 import DateRangePicker from '@/Components/DateRangePicker.vue';
 import MetricCard from '@/Components/MetricCard.vue';
 import RankList from '@/Components/RankList.vue';
@@ -288,10 +287,10 @@ const chartOptions = {
                 />
             </div>
 
-            <div class="grid gap-4 lg:grid-cols-2">
-                <CountryMap :countries="metrics.countries" />
-                <TrafficHeatmap :cells="metrics.traffic_heatmap" />
-            </div>
+            <TrafficHeatmap
+                :cells="metrics.traffic_heatmap"
+                :timezone="metrics.timezone"
+            />
         </div>
     </AppLayout>
 </template>
