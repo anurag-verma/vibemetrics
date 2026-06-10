@@ -243,7 +243,7 @@ const assets = computed(() => [
                             :disabled="!form.transactional_emails_enabled"
                             class="rounded border-slate-300 text-indigo-600 disabled:cursor-not-allowed dark:border-slate-600 dark:bg-slate-800"
                         />
-                        <span class="text-sm text-slate-700 dark:text-slate-300">Welcome email on signup</span>
+                        <span class="text-sm text-slate-700 dark:text-slate-300">Welcome email after email verification</span>
                     </label>
                     <label class="flex items-center gap-3">
                         <input

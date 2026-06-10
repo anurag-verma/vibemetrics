@@ -7,7 +7,7 @@ use App\Listeners\SendWelcomeEmail;
 use App\Services\BrandingService;
 use App\Services\PlatformSettingsService;
 use Illuminate\Auth\Events\PasswordReset;
-use Illuminate\Auth\Events\Registered;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Http\Request;
@@ -57,7 +57,7 @@ class AppServiceProvider extends ServiceProvider
                 : $rule;
         });
 
-        Event::listen(Registered::class, SendWelcomeEmail::class);
+        Event::listen(Verified::class, SendWelcomeEmail::class);
         Event::listen(PasswordReset::class, SendPasswordChangedEmail::class);
 
         $branding = fn (): array => app(BrandingService::class)->toArray();

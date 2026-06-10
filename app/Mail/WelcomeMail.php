@@ -31,6 +31,7 @@ class WelcomeMail extends Mailable
             markdown: 'mail.welcome',
             with: [
                 'appName' => app(BrandingService::class)->displayName(),
+                'actionUrl' => route('getting-started'),
             ],
         );
     }
