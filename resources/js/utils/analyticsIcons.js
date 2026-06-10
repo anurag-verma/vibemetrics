@@ -3,12 +3,7 @@ import edgeIcon from '@browser-logos/edge/edge.svg?url';
 import firefoxIcon from '@browser-logos/firefox/firefox.svg?url';
 import operaIcon from '@browser-logos/opera/opera.svg?url';
 import safariIcon from '@browser-logos/safari/safari.svg?url';
-import {
-    siAndroid,
-    siIos,
-    siLinux,
-    siMacos,
-} from 'simple-icons';
+import { siAndroid } from 'simple-icons';
 
 /** @type {Record<string, string>} */
 const browserIcons = {
@@ -25,11 +20,11 @@ const osBrands = {
         path: 'M3 4.5 10.5 3.4V11H3V4.5Zm0 7.5h7.5v7.6L3 18.5V12ZM11.25 3.2 21 1.5v9.75H11.25V3.2ZM11.25 12.75H21V22l-9.75-1.65V12.75Z',
         hex: '0078D4',
     },
-    ios: { path: siIos.path, hex: siIos.hex },
-    macos: { path: siMacos.path, hex: siMacos.hex },
     android: { path: siAndroid.path, hex: siAndroid.hex },
-    linux: { path: siLinux.path, hex: siLinux.hex },
 };
+
+/** @type {Set<string>} */
+const osAppIcons = new Set(['ios', 'macos', 'linux']);
 
 /**
  * @param {string} label
@@ -56,7 +51,7 @@ export function countryFlagClass(label) {
 /**
  * @param {'browser'|'os'|'device'|'country'} type
  * @param {string} label
- * @returns {{ kind: 'flag'|'image'|'brand'|'glyph', value?: string, path?: string, hex?: string }|null}
+ * @returns {{ kind: 'flag'|'image'|'brand'|'os-app'|'glyph', value?: string, path?: string, hex?: string }|null}
  */
 export function resolveAnalyticsIcon(type, label) {
     const key = normalizeKey(label);
@@ -88,6 +83,10 @@ export function resolveAnalyticsIcon(type, label) {
     if (type === 'os') {
         if (key === 'unknown') {
             return { kind: 'glyph', value: 'unknown-os' };
+        }
+
+        if (osAppIcons.has(key)) {
+            return { kind: 'os-app', value: key };
         }
 
         const brand = osBrands[key];

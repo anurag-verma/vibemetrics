@@ -1,4 +1,5 @@
 <script setup>
+import OsAppIcon from '@/Components/OsAppIcon.vue';
 import { computed } from 'vue';
 import { resolveAnalyticsIcon } from '@/utils/analyticsIcons';
 
@@ -28,6 +29,10 @@ const icon = computed(() => resolveAnalyticsIcon(props.type, props.label));
             :src="icon.value"
             alt=""
             class="analytics-icon-image"
+        />
+        <OsAppIcon
+            v-else-if="icon?.kind === 'os-app'"
+            :name="icon.value"
         />
         <svg
             v-else-if="icon?.kind === 'brand'"
