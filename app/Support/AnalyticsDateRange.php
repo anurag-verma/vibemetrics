@@ -98,7 +98,7 @@ class AnalyticsDateRange
 
     public function isHourlyTrend(): bool
     {
-        return $this->preset === 'last_24_hours';
+        return in_array($this->preset, ['today', 'last_24_hours'], true);
     }
 
     public function dayCount(): int

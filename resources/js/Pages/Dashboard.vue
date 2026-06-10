@@ -11,19 +11,17 @@ import {
     Chart as ChartJS,
     CategoryScale,
     LinearScale,
-    PointElement,
-    LineElement,
+    BarElement,
     Title,
     Tooltip,
-    Filler,
     Legend,
 } from 'chart.js';
-import { Line } from 'vue-chartjs';
+import { Bar } from 'vue-chartjs';
 import { useRelativeUpdatedLabel } from '@/Composables/useRelativeUpdatedLabel';
 import { formatTrendLabel } from '@/utils/date';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Filler, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const props = defineProps({
     site: Object,
@@ -120,24 +118,14 @@ const chartData = computed(() => ({
         {
             label: 'Views',
             data: props.metrics.daily_trend.map((d) => d.count),
-            borderColor: '#6366f1',
-            backgroundColor: 'rgba(99, 102, 241, 0.08)',
-            fill: true,
-            tension: 0.35,
-            pointRadius: 0,
-            pointHoverRadius: 5,
-            borderWidth: 2,
+            backgroundColor: 'rgba(99, 102, 241, 0.85)',
+            borderRadius: 6,
         },
         {
             label: 'Visitors',
             data: props.metrics.visitors_trend.map((d) => d.count),
-            borderColor: '#10b981',
-            backgroundColor: 'rgba(16, 185, 129, 0.06)',
-            fill: true,
-            tension: 0.35,
-            pointRadius: 0,
-            pointHoverRadius: 5,
-            borderWidth: 2,
+            backgroundColor: 'rgba(16, 185, 129, 0.85)',
+            borderRadius: 6,
         },
     ],
 }));
@@ -156,7 +144,7 @@ const chartOptions = {
         tooltip: { padding: 12, cornerRadius: 8 },
     },
     scales: {
-        x: { grid: { display: false }, ticks: { maxTicksLimit: 8 } },
+        x: { grid: { display: false }, ticks: { maxTicksLimit: 12 } },
         y: { beginAtZero: true, ticks: { precision: 0 } },
     },
 };
@@ -272,7 +260,7 @@ const chartOptions = {
             <div class="vm-card">
                 <h3 class="vm-panel-title mb-4">Traffic ({{ dateRange.label }})</h3>
                 <div class="h-72">
-                    <Line :data="chartData" :options="chartOptions" />
+                    <Bar :data="chartData" :options="chartOptions" />
                 </div>
             </div>
 
