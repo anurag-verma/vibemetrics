@@ -490,6 +490,10 @@
         @apply h-4 w-4 object-contain;
     }
 
+    .analytics-icon-brand {
+        @apply h-4 w-4;
+    }
+
     .analytics-icon-glyph {
         @apply h-4 w-4;
     }

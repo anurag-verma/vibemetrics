@@ -1,34 +1,50 @@
-import androidIcon from '@browser-logos/android/android_32x32.png?url';
 import chromeIcon from '@browser-logos/chrome/chrome.svg?url';
 import edgeIcon from '@browser-logos/edge/edge.svg?url';
 import firefoxIcon from '@browser-logos/firefox/firefox.svg?url';
 import operaIcon from '@browser-logos/opera/opera.svg?url';
 import safariIcon from '@browser-logos/safari/safari.svg?url';
+import {
+    siAndroid,
+    siIos,
+    siLinux,
+    siMacos,
+} from 'simple-icons';
 
 /** @type {Record<string, string>} */
 const browserIcons = {
-    Chrome: chromeIcon,
-    Firefox: firefoxIcon,
-    Safari: safariIcon,
-    Edge: edgeIcon,
-    Opera: operaIcon,
+    chrome: chromeIcon,
+    firefox: firefoxIcon,
+    safari: safariIcon,
+    edge: edgeIcon,
+    opera: operaIcon,
 };
 
-/** @type {Record<string, string>} */
-const osIcons = {
-    Android: androidIcon,
-    iOS: 'apple',
-    macOS: 'apple',
-    Windows: 'windows',
-    Linux: 'linux',
+/** @type {Record<string, { path: string, hex: string }>} */
+const osBrands = {
+    windows: {
+        path: 'M3 4.5 10.5 3.4V11H3V4.5Zm0 7.5h7.5v7.6L3 18.5V12ZM11.25 3.2 21 1.5v9.75H11.25V3.2ZM11.25 12.75H21V22l-9.75-1.65V12.75Z',
+        hex: '0078D4',
+    },
+    ios: { path: siIos.path, hex: siIos.hex },
+    macos: { path: siMacos.path, hex: siMacos.hex },
+    android: { path: siAndroid.path, hex: siAndroid.hex },
+    linux: { path: siLinux.path, hex: siLinux.hex },
 };
+
+/**
+ * @param {string} label
+ * @returns {string}
+ */
+function normalizeKey(label) {
+    return (label || '').trim().toLowerCase();
+}
 
 /**
  * @param {string} label
  * @returns {string|null}
  */
 export function countryFlagClass(label) {
-    const code = (label || '').toLowerCase();
+    const code = normalizeKey(label);
 
     if (code.length !== 2 || code === 'xx') {
         return null;
@@ -38,48 +54,68 @@ export function countryFlagClass(label) {
 }
 
 /**
- * @param {'browser'|'os'|'device'} type
+ * @param {'browser'|'os'|'device'|'country'} type
  * @param {string} label
- * @returns {{ kind: 'flag'|'image'|'glyph', value: string }|null}
+ * @returns {{ kind: 'flag'|'image'|'brand'|'glyph', value?: string, path?: string, hex?: string }|null}
  */
 export function resolveAnalyticsIcon(type, label) {
-    if (!label) {
-        return null;
+    const key = normalizeKey(label);
+
+    if (!key) {
+        return { kind: 'glyph', value: type === 'country' ? 'unknown-location' : 'unknown' };
     }
 
     if (type === 'country') {
+        if (key === 'xx') {
+            return { kind: 'glyph', value: 'unknown-location' };
+        }
+
         const flagClass = countryFlagClass(label);
 
-        return flagClass ? { kind: 'flag', value: flagClass } : null;
+        return flagClass ? { kind: 'flag', value: flagClass } : { kind: 'glyph', value: 'unknown-location' };
     }
 
     if (type === 'browser') {
-        const src = browserIcons[label];
+        if (key === 'unknown') {
+            return { kind: 'glyph', value: 'unknown' };
+        }
 
-        return src ? { kind: 'image', value: src } : null;
+        const src = browserIcons[key];
+
+        return src ? { kind: 'image', value: src } : { kind: 'glyph', value: 'unknown' };
     }
 
     if (type === 'os') {
-        const icon = osIcons[label];
-
-        if (!icon) {
-            return null;
+        if (key === 'unknown') {
+            return { kind: 'glyph', value: 'unknown-os' };
         }
 
-        if (icon === 'apple' || icon === 'windows' || icon === 'linux') {
-            return { kind: 'glyph', value: icon };
-        }
+        const brand = osBrands[key];
 
-        return { kind: 'image', value: icon };
+        return brand
+            ? { kind: 'brand', path: brand.path, hex: brand.hex }
+            : { kind: 'glyph', value: 'unknown-os' };
     }
 
     if (type === 'device') {
-        const normalized = label.toLowerCase();
+        if (['desktop', 'mobile', 'tablet'].includes(key)) {
+            return { kind: 'glyph', value: key };
+        }
 
-        if (['desktop', 'mobile', 'tablet'].includes(normalized)) {
-            return { kind: 'glyph', value: normalized };
+        if (key === 'unknown') {
+            return { kind: 'glyph', value: 'unknown' };
         }
     }
 
-    return null;
+    return { kind: 'glyph', value: 'unknown' };
 }
+
+/** @type {Record<string, string>} */
+export const osDisplayNames = {
+    windows: 'Windows',
+    ios: 'iOS',
+    android: 'Android',
+    macos: 'macOS',
+    linux: 'Linux',
+    unknown: 'Unknown',
+};
