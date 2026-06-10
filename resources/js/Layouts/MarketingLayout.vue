@@ -1,4 +1,5 @@
 <script setup>
+import AnnouncementBanner from '@/Components/AnnouncementBanner.vue';
 import AppVersion from '@/Components/AppVersion.vue';
 import Logo from '@/Components/Logo.vue';
 import { useBodyScrollLock } from '@/Composables/useBodyScrollLock';
@@ -35,6 +36,7 @@ useEscapeKey(mobileMenuOpen, closeMobileMenu);
 
 <template>
     <div class="flex min-h-screen flex-col bg-paper text-warm-800">
+        <AnnouncementBanner />
         <header class="sticky top-0 z-50 border-b border-warm-200/80 bg-paper/90 shadow-sm backdrop-blur-lg">
             <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
                 <div class="flex min-w-0 items-center gap-2">

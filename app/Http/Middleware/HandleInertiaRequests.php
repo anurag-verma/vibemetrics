@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\AnnouncementService;
 use App\Services\BrandingService;
 use App\Services\PlatformSettingsService;
 use App\Services\SiteLimitService;
@@ -24,6 +25,7 @@ class HandleInertiaRequests extends Middleware
         $siteLimit = app(SiteLimitService::class);
         $settings = app(PlatformSettingsService::class);
         $branding = app(BrandingService::class);
+        $announcement = app(AnnouncementService::class);
 
         return [
             ...parent::share($request),
@@ -46,13 +48,14 @@ class HandleInertiaRequests extends Middleware
             ],
             'platform' => [
                 'maxSitesPerUser' => fn () => $user && ! $siteLimit->isUnlimited($user)
-                    ? $settings->getInt('max_sites_per_user', 2)
+                    ? $siteLimit->maxFor($user)
                     : null,
                 'unlimitedSites' => fn () => $user ? $siteLimit->isUnlimited($user) : false,
                 'sitesUsed' => fn () => $user ? $siteLimit->used($user) : 0,
                 'canAddSite' => fn () => $user ? $siteLimit->canCreate($user) : false,
             ],
             'branding' => fn () => $branding->toArray(),
+            'announcement' => fn () => $announcement->forRequest($request),
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),

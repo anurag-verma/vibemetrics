@@ -22,6 +22,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'timezone',
         'default_date_range',
+        'site_limit',
         'password',
     ];
 
@@ -39,6 +40,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'is_admin' => 'boolean',
             'is_active' => 'boolean',
+            'site_limit' => 'integer',
         ];
     }
 

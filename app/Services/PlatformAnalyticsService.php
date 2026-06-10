@@ -46,7 +46,7 @@ class PlatformAnalyticsService
             ? round((($pageViewsToday - $pageViewsYesterday) / $pageViewsYesterday) * 100, 1)
             : ($pageViewsToday > 0 ? 100.0 : 0.0);
 
-        $siteLimit = $this->settings->getInt('max_sites_per_user', 2);
+        $siteLimitService = app(SiteLimitService::class);
 
         return [
             'total_users' => User::count(),
@@ -57,9 +57,10 @@ class PlatformAnalyticsService
             'paused_sites' => Site::where('is_paused', true)->count(),
             'new_sites_7d' => Site::where('created_at', '>=', now()->subDays(6)->startOfDay())->count(),
             'users_at_limit' => User::query()
+                ->where('is_admin', false)
                 ->withCount('sites')
                 ->get()
-                ->filter(fn (User $user) => $user->sites_count >= $siteLimit)
+                ->filter(fn (User $user) => $user->sites_count >= $siteLimitService->maxFor($user))
                 ->count(),
             'total_page_views' => (int) DB::table('page_views')->count(),
             'page_views_today' => $pageViewsToday,

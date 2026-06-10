@@ -1,4 +1,5 @@
 <script setup>
+import AnnouncementBanner from '@/Components/AnnouncementBanner.vue';
 import FlashToast from '@/Components/FlashToast.vue';
 import Logo from '@/Components/Logo.vue';
 import { useCurrentYear } from '@/Composables/useCurrentYear';
@@ -8,7 +9,9 @@ const currentYear = useCurrentYear();
 </script>
 
 <template>
-    <div class="guest-layout flex min-h-screen flex-col items-center bg-gradient-to-br from-slate-50 via-white to-indigo-50/50 px-4 pt-8 sm:justify-center sm:pt-0">
+    <div class="guest-layout flex min-h-screen flex-col bg-gradient-to-br from-slate-50 via-white to-indigo-50/50">
+        <AnnouncementBanner />
+        <div class="flex flex-1 flex-col items-center px-4 pt-8 sm:justify-center sm:pt-0">
         <FlashToast />
         <div class="mb-8">
             <Logo size="lg" href="/" />
@@ -25,5 +28,6 @@ const currentYear = useCurrentYear();
             ·
             <Link :href="route('terms')" class="hover:text-indigo-600">Terms</Link>
         </p>
+        </div>
     </div>
 </template>
