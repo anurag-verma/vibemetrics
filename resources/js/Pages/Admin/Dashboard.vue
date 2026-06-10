@@ -121,7 +121,7 @@ const hasIngestion = computed(() => props.ingestionRate.some((d) => d.count > 0)
         <div class="mx-auto max-w-7xl space-y-6">
             <PageHeader
                 title="Platform overview"
-                description="System health oo yeah, growth, and ingestion."
+                description="System health, growth, and ingestion."
             >
                 <template #actions>
                     <span class="hidden text-xs text-slate-500 dark:text-slate-400 sm:inline">{{ lastUpdatedLabel }}</span>
