@@ -494,6 +494,10 @@
         @apply h-4 w-4;
     }
 
+    .analytics-os-app {
+        @apply h-5 w-5;
+    }
+
     .analytics-icon-glyph {
         @apply h-4 w-4;
     }
