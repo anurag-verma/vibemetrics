@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateAdminUserRequest;
 use App\Models\User;
 use App\Services\SiteLimitService;
+use App\Services\TransactionalEmailService;
 use App\Support\DateFormatter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -38,8 +39,13 @@ class UserController extends Controller
         ]);
     }
 
-    public function update(UpdateAdminUserRequest $request, User $user): RedirectResponse
-    {
+    public function update(
+        UpdateAdminUserRequest $request,
+        User $user,
+        TransactionalEmailService $transactionalEmail,
+    ): RedirectResponse {
+        $wasActive = $user->is_active;
+
         if ($user->id === $request->user()->id) {
             if ($request->has('is_admin') && ! $request->boolean('is_admin')) {
                 return back()->with('error', 'You cannot remove your own admin access.');
@@ -67,6 +73,10 @@ class UserController extends Controller
         }
 
         $user->save();
+
+        if ($wasActive && ! $user->is_active) {
+            $transactionalEmail->sendAccountDeactivated($user);
+        }
 
         return back()->with('success', 'User updated.');
     }

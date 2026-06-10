@@ -23,6 +23,10 @@ const form = useForm({
     support_email: props.settings.support_email ?? '',
     brand_primary_color: props.settings.brand_primary_color ?? props.branding.primaryColor,
     email_logo_same_as_site: props.settings.email_logo_same_as_site ?? true,
+    transactional_emails_enabled: props.settings.transactional_emails_enabled ?? true,
+    email_welcome_enabled: props.settings.email_welcome_enabled ?? true,
+    email_password_changed_enabled: props.settings.email_password_changed_enabled ?? true,
+    email_account_deactivated_enabled: props.settings.email_account_deactivated_enabled ?? true,
 });
 
 const uploading = ref(null);
@@ -216,6 +220,50 @@ const assets = computed(() => [
                     <input v-model="form.maintenance_mode" type="checkbox" class="rounded border-slate-300 text-indigo-600 dark:border-slate-600 dark:bg-slate-800" />
                     <span class="text-sm text-slate-700 dark:text-slate-300">Maintenance mode (503 on collect API)</span>
                 </label>
+            </div>
+
+            <div class="vm-card space-y-4">
+                <h3 class="vm-panel-title">Transactional emails</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400">
+                    Optional notifications sent to users. Email verification and password reset always send when triggered.
+                </p>
+                <label class="flex items-center gap-3">
+                    <input
+                        v-model="form.transactional_emails_enabled"
+                        type="checkbox"
+                        class="rounded border-slate-300 text-indigo-600 dark:border-slate-600 dark:bg-slate-800"
+                    />
+                    <span class="text-sm text-slate-700 dark:text-slate-300">Enable transactional emails</span>
+                </label>
+                <div class="space-y-3 border-l-2 border-slate-200 pl-4 dark:border-slate-700" :class="{ 'opacity-50': !form.transactional_emails_enabled }">
+                    <label class="flex items-center gap-3">
+                        <input
+                            v-model="form.email_welcome_enabled"
+                            type="checkbox"
+                            :disabled="!form.transactional_emails_enabled"
+                            class="rounded border-slate-300 text-indigo-600 disabled:cursor-not-allowed dark:border-slate-600 dark:bg-slate-800"
+                        />
+                        <span class="text-sm text-slate-700 dark:text-slate-300">Welcome email on signup</span>
+                    </label>
+                    <label class="flex items-center gap-3">
+                        <input
+                            v-model="form.email_password_changed_enabled"
+                            type="checkbox"
+                            :disabled="!form.transactional_emails_enabled"
+                            class="rounded border-slate-300 text-indigo-600 disabled:cursor-not-allowed dark:border-slate-600 dark:bg-slate-800"
+                        />
+                        <span class="text-sm text-slate-700 dark:text-slate-300">Password changed alert</span>
+                    </label>
+                    <label class="flex items-center gap-3">
+                        <input
+                            v-model="form.email_account_deactivated_enabled"
+                            type="checkbox"
+                            :disabled="!form.transactional_emails_enabled"
+                            class="rounded border-slate-300 text-indigo-600 disabled:cursor-not-allowed dark:border-slate-600 dark:bg-slate-800"
+                        />
+                        <span class="text-sm text-slate-700 dark:text-slate-300">Account deactivated notice</span>
+                    </label>
+                </div>
             </div>
 
             <div class="vm-card space-y-4">

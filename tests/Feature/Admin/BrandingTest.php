@@ -31,6 +31,10 @@ class BrandingTest extends TestCase
                 'support_email' => 'hello@honestat.com',
                 'brand_primary_color' => '#112233',
                 'email_logo_same_as_site' => true,
+                'transactional_emails_enabled' => true,
+                'email_welcome_enabled' => true,
+                'email_password_changed_enabled' => true,
+                'email_account_deactivated_enabled' => true,
             ])
             ->assertRedirect()
             ->assertSessionHas('success');
