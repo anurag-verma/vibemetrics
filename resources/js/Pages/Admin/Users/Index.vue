@@ -6,9 +6,9 @@ import ToggleSwitch from '@/Components/ToggleSwitch.vue';
 import { Head, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
-defineProps({
+const props = defineProps({
     users: Object,
-    siteLimit: Number,
+    defaultSiteLimit: Number,
     currentUserId: Number,
 });
 
@@ -22,6 +22,33 @@ const updateUser = (user, payload) => {
 const setVerified = (user, value) => updateUser(user, { email_verified: value });
 const setActive = (user, value) => updateUser(user, { is_active: value });
 const setAdmin = (user, value) => updateUser(user, { is_admin: value });
+
+const siteUsageLabel = (user) => {
+    if (user.is_unlimited_sites) {
+        return `${user.sites_count} sites`;
+    }
+
+    return `${user.sites_count} / ${user.effective_site_limit}`;
+};
+
+const siteLimitPlaceholder = (user) => (
+    user.site_limit ? String(user.site_limit) : `Default (${props.defaultSiteLimit})`
+);
+
+const updateSiteLimit = (user, event) => {
+    if (user.is_unlimited_sites) {
+        return;
+    }
+
+    const raw = event.target.value.trim();
+    const site_limit = raw === '' ? null : Number(raw);
+
+    if (site_limit !== null && (Number.isNaN(site_limit) || site_limit < 1)) {
+        return;
+    }
+
+    router.patch(route('admin.users.update', user.id), { site_limit }, { preserveScroll: true });
+};
 
 const confirmDelete = (user) => {
     userToDelete.value = user;
@@ -58,7 +85,7 @@ const deleteUser = () => {
     <AdminLayout>
         <PageHeader
             title="Users"
-            :description="`Global site limit: ${siteLimit} per user`"
+            :description="`Default site limit: ${defaultSiteLimit} per user. Override per user below.`"
         />
 
         <div class="vm-card overflow-hidden">
@@ -89,7 +116,21 @@ const deleteUser = () => {
                     <dl class="mt-4 grid grid-cols-2 gap-3 text-sm">
                         <div>
                             <dt class="text-xs text-slate-500 dark:text-slate-400">Sites</dt>
-                            <dd class="mt-0.5 font-medium text-slate-700 dark:text-slate-300">{{ user.sites_count }} / {{ siteLimit }}</dd>
+                            <dd class="mt-0.5 font-medium text-slate-700 dark:text-slate-300">{{ siteUsageLabel(user) }}</dd>
+                        </div>
+                        <div v-if="!user.is_unlimited_sites" class="col-span-2">
+                            <dt class="text-xs text-slate-500 dark:text-slate-400">Site limit override</dt>
+                            <dd class="mt-1">
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max="100"
+                                    :value="user.site_limit ?? ''"
+                                    :placeholder="`Default (${defaultSiteLimit})`"
+                                    class="vm-input w-full max-w-[8rem] py-1.5 text-sm"
+                                    @change="updateSiteLimit(user, $event)"
+                                />
+                            </dd>
                         </div>
                         <div>
                             <dt class="text-xs text-slate-500 dark:text-slate-400">Registered</dt>
@@ -135,6 +176,7 @@ const deleteUser = () => {
                             <th class="pb-3 pr-4 font-medium">Name</th>
                             <th class="pb-3 pr-4 font-medium">Email</th>
                             <th class="pb-3 pr-4 font-medium">Sites</th>
+                            <th class="pb-3 pr-4 font-medium">Site limit</th>
                             <th class="pb-3 pr-4 font-medium">Registered</th>
                             <th class="pb-3 pr-4 font-medium">Verified</th>
                             <th class="pb-3 pr-4 font-medium">Active</th>
@@ -146,7 +188,20 @@ const deleteUser = () => {
                         <tr v-for="user in users.data" :key="user.id" class="text-slate-700 dark:text-slate-300">
                             <td class="py-3 pr-4 font-medium">{{ user.name }}</td>
                             <td class="py-3 pr-4">{{ user.email }}</td>
-                            <td class="py-3 pr-4">{{ user.sites_count }} / {{ siteLimit }}</td>
+                            <td class="py-3 pr-4">{{ siteUsageLabel(user) }}</td>
+                            <td class="py-3 pr-4">
+                                <span v-if="user.is_unlimited_sites" class="text-slate-500 dark:text-slate-400">Unlimited</span>
+                                <input
+                                    v-else
+                                    type="number"
+                                    min="1"
+                                    max="100"
+                                    :value="user.site_limit ?? ''"
+                                    :placeholder="siteLimitPlaceholder(user)"
+                                    class="vm-input w-24 py-1 text-sm"
+                                    @change="updateSiteLimit(user, $event)"
+                                />
+                            </td>
                             <td class="py-3 pr-4 text-slate-500 dark:text-slate-400">{{ user.created_at }}</td>
                             <td class="py-3 pr-4">
                                 <ToggleSwitch

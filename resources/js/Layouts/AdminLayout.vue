@@ -1,4 +1,5 @@
 <script setup>
+import AnnouncementBanner from '@/Components/AnnouncementBanner.vue';
 import AppVersion from '@/Components/AppVersion.vue';
 import FlashToast from '@/Components/FlashToast.vue';
 import Logo from '@/Components/Logo.vue';
@@ -25,9 +26,11 @@ useEscapeKey(sidebarOpen, closeSidebar);
 </script>
 
 <template>
-    <div class="app-shell flex h-full overflow-hidden bg-slate-50 dark:bg-slate-950">
+    <div class="app-shell flex h-full flex-col overflow-hidden bg-slate-50 dark:bg-slate-950">
         <FlashToast />
+        <AnnouncementBanner />
 
+        <div class="flex min-h-0 flex-1 overflow-hidden">
         <div
             v-if="sidebarOpen"
             class="fixed inset-0 z-40 bg-black/50 lg:hidden"
@@ -195,6 +198,7 @@ useEscapeKey(sidebarOpen, closeSidebar);
             <main class="flex-1 overflow-y-auto p-4 lg:p-6">
                 <slot />
             </main>
+        </div>
         </div>
     </div>
 </template>

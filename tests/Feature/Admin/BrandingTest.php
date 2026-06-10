@@ -35,6 +35,13 @@ class BrandingTest extends TestCase
                 'email_welcome_enabled' => true,
                 'email_password_changed_enabled' => true,
                 'email_account_deactivated_enabled' => true,
+                'announcement_enabled' => false,
+                'announcement_message' => '',
+                'announcement_type' => 'info',
+                'announcement_audience' => 'authenticated',
+                'announcement_link_url' => null,
+                'announcement_link_label' => null,
+                'announcement_dismissible' => true,
             ])
             ->assertRedirect()
             ->assertSessionHas('success');

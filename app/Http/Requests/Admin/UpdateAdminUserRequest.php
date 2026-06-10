@@ -18,6 +18,7 @@ class UpdateAdminUserRequest extends FormRequest
             'is_admin' => ['sometimes', 'boolean'],
             'email_verified' => ['sometimes', 'boolean'],
             'is_active' => ['sometimes', 'boolean'],
+            'site_limit' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:100'],
         ];
     }
 }

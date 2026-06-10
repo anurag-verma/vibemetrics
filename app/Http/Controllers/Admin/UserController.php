@@ -17,6 +17,8 @@ class UserController extends Controller
 {
     public function index(Request $request, SiteLimitService $siteLimit): Response
     {
+        $defaultSiteLimit = $siteLimit->platformDefault();
+
         $users = User::query()
             ->withCount('sites')
             ->orderByDesc('created_at')
@@ -29,12 +31,15 @@ class UserController extends Controller
                 'email_verified' => $user->hasVerifiedEmail(),
                 'is_active' => $user->is_active,
                 'sites_count' => $user->sites_count,
+                'site_limit' => $user->site_limit,
+                'effective_site_limit' => $siteLimit->isUnlimited($user) ? null : $siteLimit->maxFor($user),
+                'is_unlimited_sites' => $siteLimit->isUnlimited($user),
                 'created_at' => DateFormatter::display($user->created_at),
             ]);
 
         return Inertia::render('Admin/Users/Index', [
             'users' => $users,
-            'siteLimit' => $siteLimit->maxFor($request->user()),
+            'defaultSiteLimit' => $defaultSiteLimit,
             'currentUserId' => $request->user()->id,
         ]);
     }
@@ -70,6 +75,10 @@ class UserController extends Controller
 
         if ($request->has('is_active')) {
             $user->is_active = $request->boolean('is_active');
+        }
+
+        if ($request->has('site_limit')) {
+            $user->site_limit = $request->input('site_limit');
         }
 
         $user->save();

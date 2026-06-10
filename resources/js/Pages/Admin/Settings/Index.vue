@@ -2,6 +2,7 @@
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import InputLabel from '@/Components/InputLabel.vue';
+import RichTextEditor from '@/Components/RichTextEditor.vue';
 import { Head, router, useForm, usePage } from '@inertiajs/vue3';
 import { DATE_RANGE_PRESETS } from '@/data/dateRanges';
 import { computed, ref } from 'vue';
@@ -27,6 +28,13 @@ const form = useForm({
     email_welcome_enabled: props.settings.email_welcome_enabled ?? true,
     email_password_changed_enabled: props.settings.email_password_changed_enabled ?? true,
     email_account_deactivated_enabled: props.settings.email_account_deactivated_enabled ?? true,
+    announcement_enabled: props.settings.announcement_enabled ?? false,
+    announcement_message: props.settings.announcement_message ?? '',
+    announcement_type: props.settings.announcement_type ?? 'info',
+    announcement_audience: props.settings.announcement_audience ?? 'authenticated',
+    announcement_link_url: props.settings.announcement_link_url ?? '',
+    announcement_link_label: props.settings.announcement_link_label ?? '',
+    announcement_dismissible: props.settings.announcement_dismissible ?? true,
 });
 
 const uploading = ref(null);
@@ -179,7 +187,103 @@ const assets = computed(() => [
             </div>
 
             <div class="vm-card space-y-4">
+                <h3 class="vm-panel-title">Announcement</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400">
+                    Show a banner to users across the app, admin area, or marketing site.
+                </p>
+
+                <label class="flex items-center gap-3">
+                    <input v-model="form.announcement_enabled" type="checkbox" class="rounded border-slate-300 text-indigo-600 dark:border-slate-600 dark:bg-slate-800" />
+                    <span class="text-sm text-slate-700 dark:text-slate-300">Enable announcement banner</span>
+                </label>
+
+                <div class="space-y-4" :class="{ 'opacity-50': !form.announcement_enabled }">
+                    <div>
+                        <InputLabel for="announcement_message" value="Message" />
+                        <RichTextEditor
+                            id="announcement_message"
+                            v-model="form.announcement_message"
+                            class="mt-1"
+                            :disabled="!form.announcement_enabled"
+                            :max-length="500"
+                            placeholder="Scheduled maintenance tonight at 10 PM UTC."
+                        />
+                        <p class="mt-1 text-xs text-slate-500">Use the toolbar for bold, italic, and underline.</p>
+                    </div>
+
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <InputLabel for="announcement_type" value="Style" />
+                            <select
+                                id="announcement_type"
+                                v-model="form.announcement_type"
+                                :disabled="!form.announcement_enabled"
+                                class="vm-input mt-1"
+                            >
+                                <option value="info">Info</option>
+                                <option value="warning">Warning</option>
+                                <option value="success">Success</option>
+                            </select>
+                        </div>
+                        <div>
+                            <InputLabel for="announcement_audience" value="Audience" />
+                            <select
+                                id="announcement_audience"
+                                v-model="form.announcement_audience"
+                                :disabled="!form.announcement_enabled"
+                                class="vm-input mt-1"
+                            >
+                                <option value="authenticated">Logged-in users</option>
+                                <option value="users">Non-admin users</option>
+                                <option value="admins">Admins only</option>
+                                <option value="all">Everyone (including visitors)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <InputLabel for="announcement_link_url" value="Link URL (optional)" />
+                            <input
+                                id="announcement_link_url"
+                                v-model="form.announcement_link_url"
+                                type="url"
+                                :disabled="!form.announcement_enabled"
+                                placeholder="https://status.example.com"
+                                class="vm-input mt-1"
+                            />
+                        </div>
+                        <div>
+                            <InputLabel for="announcement_link_label" value="Link label" />
+                            <input
+                                id="announcement_link_label"
+                                v-model="form.announcement_link_label"
+                                type="text"
+                                maxlength="80"
+                                :disabled="!form.announcement_enabled"
+                                placeholder="Learn more"
+                                class="vm-input mt-1"
+                            />
+                        </div>
+                    </div>
+
+                    <label class="flex items-center gap-3">
+                        <input
+                            v-model="form.announcement_dismissible"
+                            type="checkbox"
+                            :disabled="!form.announcement_enabled"
+                            class="rounded border-slate-300 text-indigo-600 disabled:cursor-not-allowed dark:border-slate-600 dark:bg-slate-800"
+                        />
+                        <span class="text-sm text-slate-700 dark:text-slate-300">Allow users to dismiss the banner</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="vm-card space-y-4">
                 <h3 class="vm-panel-title">Limits</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400">
+                    Default cap for non-admin users. Override per user on the Users page.
+                </p>
                 <div>
                     <InputLabel for="max_sites_per_user" value="Max sites per user" />
                     <input id="max_sites_per_user" v-model.number="form.max_sites_per_user" type="number" min="1" max="100" class="vm-input mt-1" />

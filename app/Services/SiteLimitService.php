@@ -15,8 +15,17 @@ class SiteLimitService
         return $user->isAdmin();
     }
 
+    public function platformDefault(): int
+    {
+        return $this->settings->getInt('max_sites_per_user', 2);
+    }
+
     public function maxFor(User $user): int
     {
+        if ($user->site_limit !== null) {
+            return (int) $user->site_limit;
+        }
+
         return $this->settings->getInt('max_sites_per_user', 2);
     }
 
