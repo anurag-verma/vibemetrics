@@ -33,10 +33,12 @@ export function formatTrendLabel(value, granularity = 'day') {
             return String(value);
         }
 
-        const hours = String(date.getHours()).padStart(2, '0');
+        const hours24 = date.getHours();
         const minutes = String(date.getMinutes()).padStart(2, '0');
+        const period = hours24 >= 12 ? 'PM' : 'AM';
+        const hours12 = hours24 % 12 || 12;
 
-        return `${hours}:${minutes}`;
+        return `${hours12}:${minutes} ${period}`;
     }
 
     return formatDisplayDate(value);
