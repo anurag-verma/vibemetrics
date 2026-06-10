@@ -160,7 +160,7 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutside));
             v-bind="attrs"
             @click="open ? closePicker() : openPicker()"
         >
-            <span class="truncate" :class="model ? 'text-slate-900' : 'text-slate-400'">
+            <span class="truncate" :class="model ? 'text-slate-900 dark:text-slate-200' : 'text-slate-400'">
                 {{ selectedLabel || placeholder }}
             </span>
             <svg

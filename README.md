@@ -41,6 +41,13 @@ Default seeded accounts (local only):
 
 ## Production deployment
 
+Detailed CI/CD guides:
+
+- **[Hostinger shared hosting](docs/deployment/HOSTINGER-SHARED-CICD.md)** — no npm on server, GitHub Actions builds assets
+- **[VPS / cloud](docs/deployment/VPS-CLOUD-CICD.md)** — Nginx, Supervisor, full stack
+
+GitHub Actions workflows: `.github/workflows/ci.yml`, `deploy-hostinger.yml`, `deploy-vps.yml`
+
 ### 1. Upload code
 
 Deploy the project to your server. Point the web server document root to the `public/` directory (not the project root).
