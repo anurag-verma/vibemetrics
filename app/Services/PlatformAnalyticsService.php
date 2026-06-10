@@ -25,7 +25,10 @@ class PlatformAnalyticsService
         $pageViewsYesterday = $this->pageViewsOnDate(today()->subDay());
 
         return [
-            'dateRange' => $range->toQueryParams() + ['label' => $range->label],
+            'dateRange' => $range->toQueryParams() + [
+                'label' => $range->label,
+                'granularity' => $range->isHourlyTrend() ? 'hour' : 'day',
+            ],
             'kpis' => $this->kpis($pageViewsToday, $pageViewsYesterday),
             'system' => $this->systemStatus(),
             'registrationTrend' => $this->registrationTrend($range),
@@ -81,8 +84,11 @@ class PlatformAnalyticsService
     /** @return list<array{date: string, count: int}> */
     private function registrationTrend(AnalyticsDateRange $range): array
     {
+        if ($range->isHourlyTrend()) {
+            return $this->registrationTrendByHour($range);
+        }
+
         $startDate = $range->startLocal->copy()->startOfDay();
-        $endDate = $range->endLocal->copy()->startOfDay();
         $days = $range->dayCount();
 
         $counts = User::query()
@@ -99,6 +105,10 @@ class PlatformAnalyticsService
     /** @return list<array{date: string, count: int}> */
     private function trafficTrend(AnalyticsDateRange $range): array
     {
+        if ($range->isHourlyTrend()) {
+            return $this->trafficTrendByHour($range);
+        }
+
         $startDate = $range->startLocal->copy()->startOfDay();
         $days = $range->dayCount();
         $yesterday = now()->subDay()->toDateString();
@@ -121,6 +131,50 @@ class PlatformAnalyticsService
         $counts = collect($rollupCounts)->merge($liveCounts)->all();
 
         return $this->fillDateRange($startDate, $days, $counts);
+    }
+
+    /** @return list<array{date: string, count: int}> */
+    private function registrationTrendByHour(AnalyticsDateRange $range): array
+    {
+        $timezone = $range->startLocal->timezoneName;
+        $counts = $this->emptyHourCounts($range->startUtc(), $range->endUtc(), $timezone);
+
+        $rows = User::query()
+            ->where('created_at', '>=', $range->startUtc())
+            ->where('created_at', '<=', $range->endUtc())
+            ->pluck('created_at');
+
+        foreach ($rows as $createdAt) {
+            $hourKey = Carbon::parse($createdAt, 'UTC')->timezone($timezone)->format('Y-m-d H:00');
+
+            if (isset($counts[$hourKey])) {
+                $counts[$hourKey]++;
+            }
+        }
+
+        return $this->hourCountsToTrend($counts);
+    }
+
+    /** @return list<array{date: string, count: int}> */
+    private function trafficTrendByHour(AnalyticsDateRange $range): array
+    {
+        $timezone = $range->startLocal->timezoneName;
+        $counts = $this->emptyHourCounts($range->startUtc(), $range->endUtc(), $timezone);
+
+        $rows = DB::table('page_views')
+            ->where('created_at', '>=', $range->startUtc())
+            ->where('created_at', '<=', $range->endUtc())
+            ->pluck('created_at');
+
+        foreach ($rows as $createdAt) {
+            $hourKey = Carbon::parse($createdAt, 'UTC')->timezone($timezone)->format('Y-m-d H:00');
+
+            if (isset($counts[$hourKey])) {
+                $counts[$hourKey]++;
+            }
+        }
+
+        return $this->hourCountsToTrend($counts);
     }
 
     /** @return list<array{hour: string, count: int}> */
@@ -248,6 +302,33 @@ class PlatformAnalyticsService
             ->where('created_at', '>=', now()->subMinutes(5))
             ->selectRaw('COUNT(DISTINCT '.AnalyticsSql::visitorFingerprintExpression().') as aggregate')
             ->value('aggregate');
+    }
+
+    /** @return array<string, int> */
+    private function emptyHourCounts(Carbon $startUtc, Carbon $endUtc, string $timezone): array
+    {
+        $counts = [];
+        $cursor = $startUtc->copy()->timezone($timezone)->startOfHour();
+        $end = $endUtc->copy()->timezone($timezone)->startOfHour();
+
+        while ($cursor->lte($end)) {
+            $counts[$cursor->format('Y-m-d H:00')] = 0;
+            $cursor->addHour();
+        }
+
+        return $counts;
+    }
+
+    /**
+     * @param  array<string, int>  $counts
+     * @return list<array{date: string, count: int}>
+     */
+    private function hourCountsToTrend(array $counts): array
+    {
+        return collect($counts)
+            ->map(fn (int $count, string $date) => ['date' => $date, 'count' => $count])
+            ->values()
+            ->all();
     }
 
     /**

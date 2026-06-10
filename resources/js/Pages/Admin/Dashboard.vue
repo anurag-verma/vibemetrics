@@ -9,19 +9,16 @@ import {
     CategoryScale,
     LinearScale,
     BarElement,
-    PointElement,
-    LineElement,
     Title,
     Tooltip,
-    Filler,
     Legend,
 } from 'chart.js';
-import { Bar, Line } from 'vue-chartjs';
+import { Bar } from 'vue-chartjs';
 import { useRelativeUpdatedLabel } from '@/Composables/useRelativeUpdatedLabel';
-import { formatDisplayDate } from '@/utils/date';
+import { formatTrendLabel } from '@/utils/date';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Filler, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const props = defineProps({
     dateRange: Object,
@@ -64,55 +61,50 @@ onMounted(() => {
 
 onUnmounted(() => clearInterval(autoRefreshInterval));
 
+const trendGranularity = computed(() => props.dateRange?.granularity ?? 'day');
+
+const trendLabel = (value) => formatTrendLabel(value, trendGranularity.value);
+
 const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
     plugins: {
         legend: { display: false },
         tooltip: { padding: 12, cornerRadius: 8 },
     },
     scales: {
-        x: { grid: { display: false }, ticks: { maxTicksLimit: 8 } },
+        x: { grid: { display: false }, ticks: { maxTicksLimit: 12 } },
         y: { beginAtZero: true, ticks: { precision: 0 } },
     },
 };
 
 const regChart = computed(() => ({
-    labels: props.registrationTrend.map((d) => formatDisplayDate(d.date)),
+    labels: props.registrationTrend.map((d) => trendLabel(d.date)),
     datasets: [{
         label: 'New users',
         data: props.registrationTrend.map((d) => d.count),
-        borderColor: '#6366f1',
-        backgroundColor: 'rgba(99, 102, 241, 0.08)',
-        fill: true,
-        tension: 0.35,
-        pointRadius: 0,
-        pointHoverRadius: 5,
-        borderWidth: 2,
+        backgroundColor: 'rgba(99, 102, 241, 0.85)',
+        borderRadius: 6,
     }],
 }));
 
 const trafficChart = computed(() => ({
-    labels: props.trafficTrend.map((d) => formatDisplayDate(d.date)),
+    labels: props.trafficTrend.map((d) => trendLabel(d.date)),
     datasets: [{
         label: 'Page views',
         data: props.trafficTrend.map((d) => d.count),
-        borderColor: '#10b981',
-        backgroundColor: 'rgba(16, 185, 129, 0.08)',
-        fill: true,
-        tension: 0.35,
-        pointRadius: 0,
-        pointHoverRadius: 5,
-        borderWidth: 2,
+        backgroundColor: 'rgba(16, 185, 129, 0.85)',
+        borderRadius: 6,
     }],
 }));
 
 const ingestChart = computed(() => ({
-    labels: props.ingestionRate.map((d) => d.hour?.slice(11, 16) ?? ''),
+    labels: props.ingestionRate.map((d) => formatTrendLabel(d.hour, 'hour')),
     datasets: [{
         label: 'Events',
         data: props.ingestionRate.map((d) => d.count),
-        backgroundColor: '#818cf8',
+        backgroundColor: 'rgba(129, 140, 248, 0.85)',
         borderRadius: 6,
     }],
 }));
@@ -228,14 +220,14 @@ const hasIngestion = computed(() => props.ingestionRate.some((d) => d.count > 0)
                 <div class="vm-card">
                     <h3 class="vm-panel-title mb-4">Registrations ({{ dateRange.label }})</h3>
                     <div v-if="hasRegistrations" class="h-56">
-                        <Line :data="regChart" :options="chartOptions" />
+                        <Bar :data="regChart" :options="chartOptions" />
                     </div>
                     <p v-else class="flex h-56 items-center justify-center text-sm text-slate-400">No signups in this period</p>
                 </div>
                 <div class="vm-card">
                     <h3 class="vm-panel-title mb-4">Platform traffic ({{ dateRange.label }})</h3>
                     <div v-if="hasTraffic" class="h-56">
-                        <Line :data="trafficChart" :options="chartOptions" />
+                        <Bar :data="trafficChart" :options="chartOptions" />
                     </div>
                     <p v-else class="flex h-56 items-center justify-center text-sm text-slate-400">No events recorded yet</p>
                 </div>
