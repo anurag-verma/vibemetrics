@@ -12,11 +12,9 @@ Choose the guide that matches your hosting:
 ## Quick start
 
 1. Add GitHub secrets: `SSH_HOST`, `SSH_USER`, `SSH_PORT`, `SSH_KEY`, `DEPLOY_PATH`
-2. Push to `main` — **CI** runs tests automatically
-3. Use **one** deploy workflow only:
-   - Hostinger → keep `deploy-hostinger.yml`, delete or disable `deploy-vps.yml`
-   - VPS → keep `deploy-vps.yml`, delete or disable `deploy-hostinger.yml`  
-   (Both trigger on push to `main`; running both would deploy twice.)
+2. Push to `master` — **CI** runs tests automatically
+3. The active workflow is `.github/workflows/ci.yml` (test + deploy on push to `master`).
+   For VPS-only deploys, adapt the deploy job or use `docs/scripts/deploy-vps.sh` manually.
 
 ## Scripts
 
