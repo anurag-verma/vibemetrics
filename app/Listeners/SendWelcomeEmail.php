@@ -3,7 +3,7 @@
 namespace App\Listeners;
 
 use App\Services\TransactionalEmailService;
-use Illuminate\Auth\Events\Registered;
+use Illuminate\Auth\Events\Verified;
 
 class SendWelcomeEmail
 {
@@ -11,7 +11,7 @@ class SendWelcomeEmail
         private TransactionalEmailService $transactionalEmail,
     ) {}
 
-    public function handle(Registered $event): void
+    public function handle(Verified $event): void
     {
         $this->transactionalEmail->sendWelcome($event->user);
     }

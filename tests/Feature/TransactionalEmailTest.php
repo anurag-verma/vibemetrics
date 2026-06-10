@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\PlatformSettingsService;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
@@ -41,7 +42,7 @@ class TransactionalEmailTest extends TestCase
         ], $overrides);
     }
 
-    public function test_welcome_email_is_sent_on_registration(): void
+    public function test_welcome_email_is_sent_after_email_verification(): void
     {
         Mail::fake();
 
@@ -49,11 +50,22 @@ class TransactionalEmailTest extends TestCase
             'email' => 'test@example.com',
         ]);
 
-        event(new Registered($user));
+        event(new Verified($user));
 
         Mail::assertSent(WelcomeMail::class, function (WelcomeMail $mail) {
             return $mail->hasTo('test@example.com');
         });
+    }
+
+    public function test_welcome_email_is_not_sent_on_registration(): void
+    {
+        Mail::fake();
+
+        event(new Registered(User::factory()->create([
+            'email' => 'test@example.com',
+        ])));
+
+        Mail::assertNothingSent();
     }
 
     public function test_welcome_email_is_not_sent_when_disabled(): void
@@ -63,7 +75,7 @@ class TransactionalEmailTest extends TestCase
         $settings = app(PlatformSettingsService::class);
         $settings->set('transactional_emails_enabled', false);
 
-        event(new Registered(User::factory()->create([
+        event(new Verified(User::factory()->create([
             'email' => 'test@example.com',
         ])));
 
