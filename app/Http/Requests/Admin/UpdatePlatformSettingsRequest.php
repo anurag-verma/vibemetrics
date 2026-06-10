@@ -34,6 +34,10 @@ class UpdatePlatformSettingsRequest extends FormRequest
             'support_email' => ['nullable', 'email', 'max:255'],
             'brand_primary_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'email_logo_same_as_site' => ['required', 'boolean'],
+            'transactional_emails_enabled' => ['required', 'boolean'],
+            'email_welcome_enabled' => ['required', 'boolean'],
+            'email_password_changed_enabled' => ['required', 'boolean'],
+            'email_account_deactivated_enabled' => ['required', 'boolean'],
         ];
     }
 }

@@ -2,9 +2,14 @@
 
 namespace App\Providers;
 
+use App\Listeners\SendPasswordChangedEmail;
+use App\Listeners\SendWelcomeEmail;
 use App\Services\BrandingService;
 use App\Services\PlatformSettingsService;
+use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
@@ -51,6 +56,9 @@ class AppServiceProvider extends ServiceProvider
                 ? $rule->uncompromised()
                 : $rule;
         });
+
+        Event::listen(Registered::class, SendWelcomeEmail::class);
+        Event::listen(PasswordReset::class, SendPasswordChangedEmail::class);
 
         $branding = fn (): array => app(BrandingService::class)->toArray();
 
