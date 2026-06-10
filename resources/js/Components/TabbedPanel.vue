@@ -51,6 +51,7 @@ const panelId = computed(() => `tab-panel-${activeTab.value}`);
                 :title="''"
                 :items="active().items"
                 :label-type="active().labelType ?? 'auto'"
+                :icon-type="active().iconType ?? ''"
                 :empty-text="active().emptyText ?? 'No data available'"
                 bare
             />
