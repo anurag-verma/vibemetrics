@@ -104,7 +104,7 @@ php artisan test
 - Transactional emails
 - URL normalization, bot detection, domain matching (unit tests)
 
-CI runs the full suite on every push and pull request to `master` (see [Deployment & Operations](./08-deployment-operations.md#cicd--github-actions)).
+CI runs the full suite on every push and pull request to `master` (see [CI/CD with GitHub Actions](./09-cicd-github-actions.md)).
 
 ---
 

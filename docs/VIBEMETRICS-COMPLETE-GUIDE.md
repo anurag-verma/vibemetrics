@@ -18,6 +18,7 @@
 | [6. Configuration](./guides/06-configuration.md) | `.env` and platform settings |
 | [7. Development](./guides/07-development.md) | Local setup, XAMPP, testing |
 | [8. Deployment & Operations](./guides/08-deployment-operations.md) | Production, CI/CD, troubleshooting |
+| [9. CI/CD with GitHub Actions](./guides/09-cicd-github-actions.md) | GitHub Actions deep dive |
 
 ### Deployment guides
 

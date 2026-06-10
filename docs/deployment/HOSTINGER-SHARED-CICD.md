@@ -23,7 +23,7 @@ This guide covers deploying **VibeMetrics** (Laravel 12 + Inertia + Vue 3) on **
 ### CI/CD flow
 
 ```
-Push to main
+Push to master
   → GitHub Actions: composer test + npm run build
   → SSH: git pull, composer install, migrate, cache
   → SCP: upload public/build/ to server
@@ -200,13 +200,13 @@ These files live in the repository:
 | File | Purpose |
 |------|---------|
 | `.github/workflows/ci.yml` | Run tests on push/PR |
-| `.github/workflows/deploy-hostinger.yml` | Deploy to Hostinger on push to `main` |
+| `.github/workflows/ci.yml` | Test and deploy to Hostinger on push to `master` |
 
 ### Enable deployment
 
 1. Push workflows to GitHub
 2. Add all secrets from section 3
-3. Push to `main` → Actions tab shows CI + Deploy
+3. Push to `master` → Actions tab shows CI + Deploy
 
 ### Manual deploy script (on server)
 
@@ -228,7 +228,7 @@ ssh -p 65002 u123456789@your-host.hostinger.com
 cd ~/domains/yourdomain.com/vibemetrics
 
 php artisan down
-git pull origin main
+git pull origin master
 composer install --no-dev --optimize-autoloader
 php artisan migrate --force
 php artisan config:cache

@@ -119,6 +119,8 @@ Same principles as Hostinger: `public/` docroot, PHP 8.2+, MySQL, cron for sched
 
 ## CI/CD & GitHub Actions
 
+> **Full guide:** [CI/CD with GitHub Actions](./09-cicd-github-actions.md) — step-by-step tutorials, with/without tests, edge cases, and industry patterns.
+
 | File | Trigger | Purpose |
 |------|---------|---------|
 | `.github/workflows/ci.yml` | Push/PR to `master` | Test, build, deploy |

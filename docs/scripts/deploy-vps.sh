@@ -16,7 +16,7 @@ echo "==> Maintenance mode"
 php artisan down || true
 
 echo "==> Pull latest code"
-git pull origin main
+git pull origin master
 
 echo "==> Composer"
 composer install --no-dev --optimize-autoloader --no-interaction

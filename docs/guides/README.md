@@ -18,6 +18,7 @@ Privacy-first web analytics built with Laravel 12, Inertia, and Vue 3.
 | 6 | [Configuration](./06-configuration.md) | DevOps / admins | `.env` variables and platform settings |
 | 7 | [Development](./07-development.md) | Developers | Local setup, XAMPP, testing |
 | 8 | [Deployment & Operations](./08-deployment-operations.md) | DevOps | Production deploy, servers, CI/CD, troubleshooting |
+| 9 | [CI/CD with GitHub Actions](./09-cicd-github-actions.md) | DevOps | GitHub Actions step-by-step, hosting patterns, edge cases |
 
 ### Deployment-specific guides
 

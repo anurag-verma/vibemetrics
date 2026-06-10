@@ -16,7 +16,7 @@ This guide covers deploying **VibeMetrics** on a **Linux VPS** (DigitalOcean, He
 ### CI/CD flow
 
 ```
-Push to main
+Push to master
   → GitHub Actions: tests (CI)
   → SSH: run deploy.sh on server
   → git pull, composer, npm build, migrate, cache, queue restart
@@ -284,7 +284,7 @@ cd /var/www/vibemetrics
 | File | Purpose |
 |------|---------|
 | `.github/workflows/ci.yml` | Tests on push/PR |
-| `.github/workflows/deploy-vps.yml` | Deploy on push to `main` |
+| `.github/workflows/ci.yml` | Test on push/PR; adapt deploy job for VPS or use `docs/scripts/deploy-vps.sh` |
 
 ### Deploy key setup
 
