@@ -39,6 +39,10 @@ Default seeded accounts (local only):
 - Admin: `admin@vibemetrics.test` / `password`
 - User: `demo@vibemetrics.test` / `password`
 
+## Documentation
+
+Full A–Z guides (split by topic): **[docs/guides/README.md](docs/guides/README.md)**
+
 ## Production deployment
 
 Detailed CI/CD guides:

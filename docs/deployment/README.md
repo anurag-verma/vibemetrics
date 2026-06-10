@@ -1,5 +1,7 @@
 # VibeMetrics Deployment Guides
 
+> **Full documentation:** [docs/guides/README.md](../guides/README.md)
+
 Choose the guide that matches your hosting:
 
 | Hosting | Guide | Deploy workflow |

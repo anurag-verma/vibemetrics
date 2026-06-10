@@ -70,9 +70,9 @@ const sourcesTabs = computed(() => [
 ]);
 
 const environmentTabs = computed(() => [
-    { id: 'browsers', label: 'Browsers', items: props.metrics.browsers },
-    { id: 'os', label: 'OS', items: props.metrics.operating_systems },
-    { id: 'devices', label: 'Devices', items: props.metrics.devices },
+    { id: 'browsers', label: 'Browsers', items: props.metrics.browsers, iconType: 'browser' },
+    { id: 'os', label: 'OS', items: props.metrics.operating_systems, iconType: 'os' },
+    { id: 'devices', label: 'Devices', items: props.metrics.devices, iconType: 'device' },
 ]);
 
 const refresh = (silent = false) => {
@@ -272,6 +272,7 @@ const chartOptions = {
                     title="Location"
                     :items="metrics.countries"
                     label-type="country"
+                    icon-type="country"
                 />
             </div>
 
