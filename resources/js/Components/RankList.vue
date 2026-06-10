@@ -1,5 +1,6 @@
 <script setup>
 import AnalyticsIcon from '@/Components/AnalyticsIcon.vue';
+import { osDisplayNames } from '@/utils/analyticsIcons';
 import { computed } from 'vue';
 
 const props = defineProps({
@@ -66,6 +67,28 @@ const formatDeviceLabel = (label) => {
 
     return label.charAt(0).toUpperCase() + label.slice(1);
 };
+
+const formatOsLabel = (label) => {
+    if (props.iconType !== 'os' || !label) {
+        return formatLabel(label);
+    }
+
+    const key = label.trim().toLowerCase();
+
+    return osDisplayNames[key] ?? (label.charAt(0).toUpperCase() + label.slice(1));
+};
+
+const displayLabel = (item) => {
+    if (props.iconType === 'device') {
+        return formatDeviceLabel(item.label);
+    }
+
+    if (props.iconType === 'os') {
+        return formatOsLabel(item.label);
+    }
+
+    return formatLabel(item.label);
+};
 </script>
 
 <template>
@@ -89,7 +112,7 @@ const formatDeviceLabel = (label) => {
                             class="w-4 shrink-0 text-xs font-medium text-slate-400"
                         >{{ index + 1 }}</span>
                         <span class="truncate text-sm text-slate-700 dark:text-slate-300" :title="item.label">
-                            {{ iconType === 'device' ? formatDeviceLabel(item.label) : formatLabel(item.label) }}
+                            {{ displayLabel(item) }}
                         </span>
                     </div>
                     <div class="shrink-0 text-sm tabular-nums text-slate-600 dark:text-slate-300">
