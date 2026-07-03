@@ -11,6 +11,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentationController;
 use App\Http\Controllers\ErrorPreviewController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\GoalController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SiteController;
@@ -74,6 +75,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/sites/{site}/regenerate-tracking-id', [SiteSettingsController::class, 'regenerateTrackingId'])
         ->name('sites.regenerate-tracking-id');
     Route::post('/sites/{site}/reset', [SiteSettingsController::class, 'reset'])->name('sites.reset');
+
+    Route::post('/sites/{site}/goals', [GoalController::class, 'store'])->name('sites.goals.store');
+    Route::patch('/sites/{site}/goals/{goal}', [GoalController::class, 'update'])->name('sites.goals.update');
+    Route::delete('/sites/{site}/goals/{goal}', [GoalController::class, 'destroy'])->name('sites.goals.destroy');
 });
 
 Route::middleware(['auth', 'verified', 'admin'])

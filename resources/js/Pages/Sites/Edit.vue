@@ -11,6 +11,7 @@ import { onMounted, onUnmounted, ref, watch } from 'vue';
 const props = defineProps({
     site: Object,
     trackingSnippet: String,
+    goals: { type: Array, default: () => [] },
 });
 
 const showResetModal = ref(false);
@@ -42,6 +43,43 @@ const deleteSite = () => {
 };
 
 const copy = (text) => navigator.clipboard.writeText(text);
+
+const showGoalModal = ref(false);
+const editingGoal = ref(null);
+const goalForm = useForm({ name: '', match_type: 'exact', url_pattern: '' });
+
+const openNewGoal = () => {
+    editingGoal.value = null;
+    goalForm.reset();
+    goalForm.match_type = 'exact';
+    showGoalModal.value = true;
+};
+
+const openEditGoal = (goal) => {
+    editingGoal.value = goal;
+    goalForm.name = goal.name;
+    goalForm.match_type = goal.match_type;
+    goalForm.url_pattern = goal.url_pattern;
+    showGoalModal.value = true;
+};
+
+const submitGoal = () => {
+    if (editingGoal.value) {
+        goalForm.patch(route('sites.goals.update', { site: props.site.id, goal: editingGoal.value.id }), {
+            onSuccess: () => { showGoalModal.value = false; goalForm.reset(); },
+        });
+    } else {
+        goalForm.post(route('sites.goals.store', props.site.id), {
+            onSuccess: () => { showGoalModal.value = false; goalForm.reset(); },
+        });
+    }
+};
+
+const deleteGoal = (goal) => {
+    if (confirm(`Delete goal "${goal.name}"?`)) {
+        router.delete(route('sites.goals.destroy', { site: props.site.id, goal: goal.id }));
+    }
+};
 
 const copiedSnippet = ref(false);
 let copiedSnippetTimeout = null;
@@ -157,6 +195,39 @@ watch(() => props.trackingSnippet, fitSnippetHeight);
                 <button type="submit" class="vm-btn-primary mt-4" :disabled="form.processing">Save</button>
             </form>
 
+            <div class="vm-card space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="vm-panel-title">Goals</h3>
+                    <button type="button" class="vm-btn-secondary text-sm" @click="openNewGoal">Add goal</button>
+                </div>
+
+                <p class="text-sm text-slate-500 dark:text-slate-400">
+                    Track URL visits as conversions. Use <strong>exact</strong> to match a specific URL or <strong>contains</strong> to match any URL containing the pattern.
+                </p>
+
+                <div v-if="goals.length > 0" class="divide-y divide-slate-100 dark:divide-slate-800">
+                    <div
+                        v-for="goal in goals"
+                        :key="goal.id"
+                        class="flex items-center justify-between gap-4 py-3"
+                    >
+                        <div class="min-w-0">
+                            <p class="truncate font-medium text-slate-800 dark:text-slate-200">{{ goal.name }}</p>
+                            <p class="mt-0.5 truncate font-mono text-xs text-slate-500 dark:text-slate-400">
+                                <span class="mr-1 rounded bg-slate-100 px-1 py-0.5 text-slate-600 dark:bg-slate-700 dark:text-slate-300">{{ goal.match_type }}</span>
+                                {{ goal.url_pattern }}
+                            </p>
+                        </div>
+                        <div class="flex shrink-0 gap-2">
+                            <button type="button" class="vm-btn-secondary text-xs" @click="openEditGoal(goal)">Edit</button>
+                            <button type="button" class="vm-btn-danger text-xs" @click="deleteGoal(goal)">Delete</button>
+                        </div>
+                    </div>
+                </div>
+
+                <p v-else class="text-sm italic text-slate-400 dark:text-slate-500">No goals yet. Add your first goal above.</p>
+            </div>
+
             <div class="vm-card space-y-4 border-rose-200 dark:border-rose-900">
                 <h3 class="vm-panel-title text-rose-600 dark:text-rose-400">Danger zone</h3>
 
@@ -201,6 +272,63 @@ watch(() => props.trackingSnippet, fitSnippetHeight);
                     <button type="button" class="vm-btn-secondary" @click="showDeleteModal = false">Cancel</button>
                     <button type="button" class="vm-btn-danger" @click="deleteSite">Delete website</button>
                 </div>
+            </div>
+        </Modal>
+
+        <Modal :show="showGoalModal" max-width="md" @close="showGoalModal = false">
+            <div class="p-6">
+                <h3 class="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
+                    {{ editingGoal ? 'Edit goal' : 'New goal' }}
+                </h3>
+                <form class="space-y-4" @submit.prevent="submitGoal">
+                    <div>
+                        <InputLabel for="goal-name" value="Goal name" />
+                        <TextInput
+                            id="goal-name"
+                            v-model="goalForm.name"
+                            class="vm-input mt-1"
+                            placeholder="e.g. Signed up"
+                            required
+                        />
+                        <InputError class="mt-1" :message="goalForm.errors.name" />
+                    </div>
+
+                    <div>
+                        <InputLabel for="goal-match-type" value="Match type" />
+                        <select
+                            id="goal-match-type"
+                            v-model="goalForm.match_type"
+                            class="vm-input mt-1"
+                        >
+                            <option value="exact">Exact — URL equals pattern</option>
+                            <option value="contains">Contains — URL includes pattern</option>
+                        </select>
+                        <InputError class="mt-1" :message="goalForm.errors.match_type" />
+                    </div>
+
+                    <div>
+                        <InputLabel for="goal-url" value="URL pattern" />
+                        <TextInput
+                            id="goal-url"
+                            v-model="goalForm.url_pattern"
+                            class="vm-input mt-1"
+                            placeholder="e.g. /thank-you or /signup/complete"
+                            required
+                        />
+                        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                            <span v-if="goalForm.match_type === 'exact'">Matches pages where the URL path equals this value exactly.</span>
+                            <span v-else>Matches pages where the URL contains this string anywhere.</span>
+                        </p>
+                        <InputError class="mt-1" :message="goalForm.errors.url_pattern" />
+                    </div>
+
+                    <div class="flex justify-end gap-3">
+                        <button type="button" class="vm-btn-secondary" @click="showGoalModal = false">Cancel</button>
+                        <button type="submit" class="vm-btn-primary" :disabled="goalForm.processing">
+                            {{ editingGoal ? 'Save changes' : 'Create goal' }}
+                        </button>
+                    </div>
+                </form>
             </div>
         </Modal>
     </AppLayout>

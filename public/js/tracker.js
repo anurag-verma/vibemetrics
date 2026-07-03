@@ -7,6 +7,7 @@
     if (!trackingId || !apiHost) return;
 
     var VISITOR_KEY = 'vm_visitor_id';
+    var PAUSED_KEY = 'vm_paused_' + trackingId;
 
     function getVisitorId() {
         try {
@@ -26,6 +27,14 @@
         }
     }
 
+    function isPaused() {
+        try { return sessionStorage.getItem(PAUSED_KEY) === '1'; } catch (e) { return false; }
+    }
+
+    function markPaused() {
+        try { sessionStorage.setItem(PAUSED_KEY, '1'); } catch (e) {}
+    }
+
     function inferDevice() {
         var ua = navigator.userAgent || '';
         if (/Mobile|Android.*Mobile|iPhone|iPod/i.test(ua)) return 'mobile';
@@ -43,8 +52,6 @@
         return utm;
     }
 
-    var lastUrl = null;
-
     function isSameOriginCollect() {
         try {
             return new URL(apiHost).origin === window.location.origin;
@@ -53,7 +60,29 @@
         }
     }
 
+    function sendPayload(endpoint, payload) {
+        var body = JSON.stringify(payload);
+
+        if (isSameOriginCollect() && navigator.sendBeacon) {
+            var blob = new Blob([body], { type: 'application/json' });
+            if (navigator.sendBeacon(apiHost + endpoint, blob)) return Promise.resolve({ status: 204 });
+        }
+
+        return fetch(apiHost + endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: body,
+            keepalive: true,
+            mode: 'cors',
+            credentials: 'omit',
+        }).catch(function () {});
+    }
+
+    var lastUrl = null;
+
     function track() {
+        if (isPaused()) return;
+
         var url = window.location.href;
         if (url === lastUrl) return;
         lastUrl = url;
@@ -68,21 +97,13 @@
 
         Object.assign(payload, parseUtm());
 
-        var body = JSON.stringify(payload);
+        var result = sendPayload('/api/collect', payload);
 
-        if (isSameOriginCollect() && navigator.sendBeacon) {
-            var blob = new Blob([body], { type: 'application/json' });
-            if (navigator.sendBeacon(apiHost + '/api/collect', blob)) return;
+        if (result && typeof result.then === 'function') {
+            result.then(function (r) {
+                if (r && r.status === 404) markPaused();
+            });
         }
-
-        fetch(apiHost + '/api/collect', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-            body: body,
-            keepalive: true,
-            mode: 'cors',
-            credentials: 'omit',
-        }).catch(function () {});
     }
 
     function patchHistory(method) {
@@ -104,4 +125,20 @@
     } else {
         window.addEventListener('load', track, { once: true });
     }
+
+    // Public API for custom event tracking
+    window.Vibemetrics = {
+        track: function (eventName, props) {
+            if (!eventName || typeof eventName !== 'string') return;
+            if (isPaused()) return;
+
+            sendPayload('/api/event', {
+                tracking_id: trackingId,
+                name: eventName.slice(0, 100),
+                url: window.location.href,
+                visitor_id: getVisitorId(),
+                props: (props && typeof props === 'object') ? props : undefined,
+            });
+        },
+    };
 })();
