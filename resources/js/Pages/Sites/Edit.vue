@@ -45,6 +45,8 @@ const deleteSite = () => {
 const copy = (text) => navigator.clipboard.writeText(text);
 
 const showGoalModal = ref(false);
+const showDeleteGoalModal = ref(false);
+const deletingGoal = ref(null);
 const editingGoal = ref(null);
 const goalForm = useForm({ name: '', match_type: 'exact', url_pattern: '' });
 
@@ -76,9 +78,17 @@ const submitGoal = () => {
 };
 
 const deleteGoal = (goal) => {
-    if (confirm(`Delete goal "${goal.name}"?`)) {
-        router.delete(route('sites.goals.destroy', { site: props.site.id, goal: goal.id }));
-    }
+    deletingGoal.value = goal;
+    showDeleteGoalModal.value = true;
+};
+
+const confirmDeleteGoal = () => {
+    router.delete(route('sites.goals.destroy', { site: props.site.id, goal: deletingGoal.value.id }), {
+        onFinish: () => {
+            showDeleteGoalModal.value = false;
+            deletingGoal.value = null;
+        },
+    });
 };
 
 const copiedSnippet = ref(false);
@@ -271,6 +281,19 @@ watch(() => props.trackingSnippet, fitSnippetHeight);
                 <div class="mt-6 flex justify-end gap-3">
                     <button type="button" class="vm-btn-secondary" @click="showDeleteModal = false">Cancel</button>
                     <button type="button" class="vm-btn-danger" @click="deleteSite">Delete website</button>
+                </div>
+            </div>
+        </Modal>
+
+        <Modal :show="showDeleteGoalModal" max-width="md" @close="showDeleteGoalModal = false">
+            <div class="p-6">
+                <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Delete goal?</h3>
+                <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                    <strong>{{ deletingGoal?.name }}</strong> will be permanently deleted. Historical conversion data for this goal will be lost.
+                </p>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" class="vm-btn-secondary" @click="showDeleteGoalModal = false">Cancel</button>
+                    <button type="button" class="vm-btn-danger" @click="confirmDeleteGoal">Delete goal</button>
                 </div>
             </div>
         </Modal>
