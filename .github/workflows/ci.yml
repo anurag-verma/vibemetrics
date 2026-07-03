@@ -83,7 +83,6 @@ jobs:
             set -e
             cd ${{ secrets.DEPLOY_PATH }}
             php artisan down || true
-            git checkout public/.htaccess
             git pull origin master
             composer install --no-dev --optimize-autoloader --no-interaction
             php artisan migrate --force
