@@ -25,8 +25,17 @@ const sections = [
     { id: 'install', label: 'Install script' },
     { id: 'spa', label: 'SPA support' },
     { id: 'utm', label: 'UTM tracking' },
+    { id: 'custom-events', label: 'Custom events' },
+    { id: 'goals', label: 'Goal tracking' },
     { id: 'dashboard', label: 'Dashboard' },
     { id: 'privacy', label: 'Privacy' },
+];
+
+const customEventExamples = [
+    { name: 'Button click', code: "Vibemetrics.track('button_clicked', { label: 'Get started' })" },
+    { name: 'Form submit', code: "Vibemetrics.track('form_submitted', { form: 'contact' })" },
+    { name: 'Purchase', code: "Vibemetrics.track('purchase_completed', { plan: 'pro' })" },
+    { name: 'Video play', code: "Vibemetrics.track('video_played')" },
 ];
 
 const snippetRef = ref(null);
@@ -208,6 +217,111 @@ onUnmounted(() => {
                 </p>
             </section>
 
+            <section id="custom-events" class="scroll-mt-36 lg:scroll-mt-24">
+                <h2 class="text-xl font-semibold text-slate-900 dark:text-white">Custom events</h2>
+                <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                    Track any action beyond page views — button clicks, form submissions, purchases, video plays, and more.
+                    <code class="rounded bg-slate-100 px-1.5 py-0.5 text-xs dark:bg-slate-800">Vibemetrics.track()</code> is available on every page that already has the tracker snippet. No extra setup needed.
+                </p>
+
+                <div class="vm-card mt-4 p-4 sm:p-5">
+                    <p class="text-sm font-semibold text-slate-900 dark:text-white">API</p>
+                    <pre class="mt-3 overflow-x-auto rounded-lg bg-slate-100 px-4 py-3 font-mono text-xs text-slate-800 dark:bg-slate-800 dark:text-slate-300">Vibemetrics.track(eventName, props?)</pre>
+                    <div class="mt-4 space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                        <div class="flex gap-3">
+                            <code class="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-xs text-indigo-600 dark:bg-slate-800 dark:text-indigo-400">eventName</code>
+                            <span>Required. A short string identifying the action, e.g. <code class="text-xs">"signup_completed"</code>.</span>
+                        </div>
+                        <div class="flex gap-3">
+                            <code class="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-xs text-indigo-600 dark:bg-slate-800 dark:text-indigo-400">props</code>
+                            <span>Optional. A plain object with up to 20 key-value pairs for extra context, e.g. <code class="text-xs">{ plan: 'pro' }</code>.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="mt-6 text-sm font-semibold text-slate-900 dark:text-white">Examples</p>
+                <div class="mt-3 space-y-3">
+                    <div v-for="ex in customEventExamples" :key="ex.name" class="vm-card p-4">
+                        <p class="mb-2 text-xs font-medium text-slate-500 dark:text-slate-400">{{ ex.name }}</p>
+                        <pre class="overflow-x-auto font-mono text-xs text-slate-800 dark:text-slate-300">{{ ex.code }}</pre>
+                    </div>
+                </div>
+
+                <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                    <div class="vm-card border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+                        <p class="font-semibold">Important</p>
+                        <p class="mt-1">The tracker loads with <code class="text-xs">defer</code>. Call <code class="text-xs">Vibemetrics.track()</code> inside event listeners or after <code class="text-xs">DOMContentLoaded</code> — not at the top of the page.</p>
+                    </div>
+                    <div class="vm-card p-4 text-sm text-slate-600 dark:text-slate-400">
+                        <p class="font-semibold text-slate-900 dark:text-white">Where to see results</p>
+                        <p class="mt-1">Events appear in the <strong>Custom Events</strong> table at the bottom of your dashboard, grouped by name and filtered by date range.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="goals" class="scroll-mt-36 lg:scroll-mt-24">
+                <h2 class="text-xl font-semibold text-slate-900 dark:text-white">Goal tracking</h2>
+                <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                    Goals measure how many visitors reach a key page — a thank-you page, signup confirmation, or pricing page — and calculate your conversion rate automatically.
+                    No code changes needed: goals work against your existing page view history.
+                </p>
+
+                <ol class="mt-4 space-y-4">
+                    <li class="vm-card flex gap-4 p-4">
+                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">1</span>
+                        <div class="min-w-0">
+                            <h3 class="font-semibold text-slate-900 dark:text-white">Open Site Settings</h3>
+                            <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                                Go to <strong>Sites → Edit</strong> for the site you want to track. Scroll to the <strong>Goals</strong> section and click <strong>Add goal</strong>.
+                            </p>
+                        </div>
+                    </li>
+                    <li class="vm-card flex gap-4 p-4">
+                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">2</span>
+                        <div class="min-w-0">
+                            <h3 class="font-semibold text-slate-900 dark:text-white">Define the URL</h3>
+                            <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                                Give the goal a name and enter a URL pattern.
+                                Use <strong>Exact</strong> to match a specific URL, or <strong>Contains</strong> to match any URL with a string in it — useful for dynamic paths like <code class="text-xs">/order/</code>.
+                            </p>
+                        </div>
+                    </li>
+                    <li class="vm-card flex gap-4 p-4">
+                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">3</span>
+                        <div class="min-w-0">
+                            <h3 class="font-semibold text-slate-900 dark:text-white">See conversions instantly</h3>
+                            <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                                The <strong>Goals</strong> panel on your dashboard shows completions, unique completions, and conversion rate for the selected date range — calculated against your existing data.
+                            </p>
+                        </div>
+                    </li>
+                </ol>
+
+                <div class="vm-card mt-4 overflow-x-auto">
+                    <table class="min-w-[28rem] divide-y divide-slate-200 text-sm sm:min-w-full dark:divide-slate-700">
+                        <thead class="bg-slate-50 dark:bg-slate-800/50">
+                            <tr>
+                                <th class="px-4 py-3 text-left font-semibold text-slate-900 dark:text-white">Match type</th>
+                                <th class="px-4 py-3 text-left font-semibold text-slate-900 dark:text-white">Pattern</th>
+                                <th class="px-4 py-3 text-left font-semibold text-slate-900 dark:text-white">Matches</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                            <tr>
+                                <td class="px-4 py-3 font-mono text-xs text-indigo-600 dark:text-indigo-400">exact</td>
+                                <td class="px-4 py-3 font-mono text-xs text-slate-500 dark:text-slate-400">/thank-you</td>
+                                <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Only <code class="text-xs">yoursite.com/thank-you</code></td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-3 font-mono text-xs text-indigo-600 dark:text-indigo-400">contains</td>
+                                <td class="px-4 py-3 font-mono text-xs text-slate-500 dark:text-slate-400">/order/</td>
+                                <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Any URL with <code class="text-xs">/order/</code> in the path, e.g. <code class="text-xs">/order/123/confirm</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
             <section id="dashboard" class="scroll-mt-36 lg:scroll-mt-24">
                 <h2 class="text-xl font-semibold text-slate-900 dark:text-white">Dashboard</h2>
                 <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
@@ -228,7 +342,15 @@ onUnmounted(() => {
                     </div>
                     <div class="vm-card p-5">
                         <h3 class="font-semibold text-slate-900 dark:text-white">CSV export</h3>
-                        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">Download pageview and referrer data for reporting or client deliverables.</p>
+                        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">Download aggregated stats and raw page view rows for any date range directly from the dashboard.</p>
+                    </div>
+                    <div class="vm-card p-5">
+                        <h3 class="font-semibold text-slate-900 dark:text-white">Custom events</h3>
+                        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">See a breakdown of every custom event fired via <code class="text-xs">Vibemetrics.track()</code>, grouped by name and filtered by date range.</p>
+                    </div>
+                    <div class="vm-card p-5">
+                        <h3 class="font-semibold text-slate-900 dark:text-white">Goal conversions</h3>
+                        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">Track how many visitors reach key pages and see your conversion rate across any date range.</p>
                     </div>
                 </div>
             </section>
