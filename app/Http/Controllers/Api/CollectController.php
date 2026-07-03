@@ -54,7 +54,8 @@ class CollectController extends Controller
         RecordPageView::dispatch(
             siteId: $site->id,
             payload: $request->validated(),
-            country: $geoIp->resolve($request),
+            country: $geoIp->resolveFromHeaders($request),
+            ip: $request->ip(),
             userAgent: $request->userAgent(),
         );
 

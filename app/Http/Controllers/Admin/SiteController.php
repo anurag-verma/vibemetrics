@@ -7,6 +7,7 @@ use App\Models\Site;
 use App\Support\DateFormatter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -44,6 +45,8 @@ class SiteController extends Controller
         ]);
 
         $site->update(['is_paused' => $request->boolean('is_paused')]);
+
+        Cache::forget("user_sites:{$site->user_id}");
 
         return back()->with('success', $site->is_paused ? 'Site tracking paused.' : 'Site tracking resumed.');
     }

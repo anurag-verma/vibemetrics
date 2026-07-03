@@ -18,18 +18,28 @@ class GeoIpResolver
 
     public function resolve(Request $request): string
     {
-        if (config('analytics.trust_geo_headers')) {
-            foreach (self::HEADER_KEYS as $header) {
-                $value = $request->header($header);
+        return $this->resolveFromHeaders($request) ?? $this->resolveFromIp($request->ip());
+    }
 
-                if (is_string($value) && strlen($value) === 2) {
-                    return strtoupper($value);
-                }
+    public function resolveFromHeaders(Request $request): ?string
+    {
+        if (! config('analytics.trust_geo_headers')) {
+            return null;
+        }
+
+        foreach (self::HEADER_KEYS as $header) {
+            $value = $request->header($header);
+
+            if (is_string($value) && strlen($value) === 2) {
+                return strtoupper($value);
             }
         }
 
-        $ip = $request->ip();
+        return null;
+    }
 
+    public function resolveFromIp(?string $ip): string
+    {
         if ($ip === null || $this->isPrivateIp($ip)) {
             return 'XX';
         }

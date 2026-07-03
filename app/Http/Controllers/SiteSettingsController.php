@@ -25,6 +25,7 @@ class SiteSettingsController extends Controller
         $site->update($request->validated());
 
         Cache::forget("site:{$site->tracking_id}");
+        Cache::forget("user_sites:{$site->user_id}");
 
         return back()->with('success', 'Site settings saved.');
     }

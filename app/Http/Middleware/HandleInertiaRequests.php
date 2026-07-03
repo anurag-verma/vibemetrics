@@ -7,6 +7,7 @@ use App\Services\BrandingService;
 use App\Services\PlatformSettingsService;
 use App\Services\SiteLimitService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -43,7 +44,7 @@ class HandleInertiaRequests extends Middleware
                     'is_admin' => $user->isAdmin(),
                 ] : null,
                 'sites' => fn () => $user
-                    ? $user->sites()->select(['id', 'name', 'domain', 'is_paused'])->orderBy('name')->get()
+                    ? Cache::remember("user_sites:{$user->id}", 60, fn () => $user->sites()->select(['id', 'name', 'domain', 'is_paused'])->orderBy('name')->get())
                     : [],
             ],
             'platform' => [
