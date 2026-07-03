@@ -59,6 +59,7 @@ class SiteSettingsController extends Controller
         return [
             'site' => $site->only(['id', 'name', 'domain', 'tracking_id', 'is_paused']),
             'trackingSnippet' => $site->isActive() ? $site->trackingSnippet() : null,
+            'goals' => $site->goals()->orderBy('created_at')->get(['id', 'name', 'match_type', 'url_pattern']),
         ];
     }
 }

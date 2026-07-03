@@ -161,6 +161,22 @@ class SiteAnalyticsService
         ];
     }
 
+    /** @return list<array{label: string, count: int}> */
+    public function aggregateCustomEvents(Site $site, AnalyticsDateRange $range): array
+    {
+        return DB::table('custom_events')
+            ->where('site_id', $site->id)
+            ->where('created_at', '>=', $range->startUtc())
+            ->where('created_at', '<=', $range->endUtc())
+            ->select('name as label', DB::raw('COUNT(*) as count'))
+            ->groupBy('name')
+            ->orderByDesc('count')
+            ->limit(50)
+            ->get()
+            ->map(fn ($row) => ['label' => (string) $row->label, 'count' => (int) $row->count])
+            ->all();
+    }
+
     public function liveVisitors(int $siteId): int
     {
         return (int) DB::table('page_views')

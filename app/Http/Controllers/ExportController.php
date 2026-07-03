@@ -6,6 +6,7 @@ use App\Models\Site;
 use App\Services\AnalyticsDateRangeResolver;
 use App\Services\SiteAnalyticsService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ExportController extends Controller
@@ -112,6 +113,31 @@ class ExportController extends Controller
             foreach ($metrics['countries'] as $row) {
                 fputcsv($handle, [$row['label'], $row['count']]);
             }
+
+            fputcsv($handle, []);
+            fputcsv($handle, ['Raw Page Views']);
+            fputcsv($handle, ['Timestamp (UTC)', 'URL', 'Referrer', 'Country', 'Browser', 'OS', 'Device', 'Visitor ID']);
+
+            DB::table('page_views')
+                ->where('site_id', $site->id)
+                ->where('created_at', '>=', $dateRange->startUtc())
+                ->where('created_at', '<=', $dateRange->endUtc())
+                ->orderBy('created_at')
+                ->select(['created_at', 'url', 'referrer', 'country', 'browser', 'os', 'device', 'visitor_id'])
+                ->chunk(500, function ($rows) use ($handle): void {
+                    foreach ($rows as $row) {
+                        fputcsv($handle, [
+                            $row->created_at,
+                            $row->url,
+                            $row->referrer,
+                            $row->country,
+                            $row->browser,
+                            $row->os,
+                            $row->device,
+                            $row->visitor_id,
+                        ]);
+                    }
+                });
 
             fclose($handle);
         }, $filename, [

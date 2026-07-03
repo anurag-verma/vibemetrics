@@ -26,6 +26,8 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 const props = defineProps({
     site: Object,
     metrics: Object,
+    customEvents: { type: Array, default: () => [] },
+    goals: { type: Array, default: () => [] },
     dateRange: Object,
 });
 
@@ -75,13 +77,18 @@ const environmentTabs = computed(() => [
     { id: 'devices', label: 'Devices', items: props.metrics.devices, iconType: 'device' },
 ]);
 
+const exportUrl = computed(() => {
+    const params = new URLSearchParams(props.dateRange).toString();
+    return route('sites.export', props.site.id) + (params ? `?${params}` : '');
+});
+
 const refresh = (silent = false) => {
     if (refreshing.value) return;
 
     if (!silent) refreshing.value = true;
 
     router.reload({
-        only: ['metrics'],
+        only: ['metrics', 'customEvents', 'goals'],
         preserveScroll: true,
         preserveState: true,
         onFinish: () => {
@@ -194,6 +201,16 @@ const chartOptions = {
                 </template>
                 <template #actions>
                     <span class="hidden text-xs text-slate-500 dark:text-slate-400 sm:inline">{{ lastUpdatedLabel }}</span>
+                    <a
+                        :href="exportUrl"
+                        class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                        title="Export CSV"
+                    >
+                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Export
+                    </a>
                     <button
                         type="button"
                         class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white p-2 text-slate-600 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
@@ -280,6 +297,74 @@ const chartOptions = {
                 :cells="metrics.traffic_heatmap"
                 :timezone="metrics.timezone"
             />
+
+            <div v-if="customEvents.length > 0" class="vm-card">
+                <h3 class="vm-panel-title mb-4">Custom Events</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-200 dark:border-slate-700">
+                                <th class="pb-2 text-left font-medium text-slate-500 dark:text-slate-400">Event</th>
+                                <th class="pb-2 text-right font-medium text-slate-500 dark:text-slate-400">Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                v-for="event in customEvents"
+                                :key="event.label"
+                                class="border-b border-slate-100 dark:border-slate-800"
+                            >
+                                <td class="py-2 font-mono text-slate-800 dark:text-slate-200">{{ event.label }}</td>
+                                <td class="py-2 text-right tabular-nums text-slate-700 dark:text-slate-300">{{ event.count.toLocaleString() }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div v-if="goals.length > 0" class="vm-card">
+                <div class="mb-4 flex items-center justify-between">
+                    <h3 class="vm-panel-title">Goals</h3>
+                    <Link :href="route('sites.edit', site.id)" class="text-xs text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">Manage goals</Link>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-200 dark:border-slate-700">
+                                <th class="pb-2 text-left font-medium text-slate-500 dark:text-slate-400">Goal</th>
+                                <th class="pb-2 text-left font-medium text-slate-500 dark:text-slate-400">URL Pattern</th>
+                                <th class="pb-2 text-right font-medium text-slate-500 dark:text-slate-400">Completions</th>
+                                <th class="pb-2 text-right font-medium text-slate-500 dark:text-slate-400">Unique</th>
+                                <th class="pb-2 text-right font-medium text-slate-500 dark:text-slate-400">Conv. Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                v-for="goal in goals"
+                                :key="goal.id"
+                                class="border-b border-slate-100 dark:border-slate-800"
+                            >
+                                <td class="py-2 font-medium text-slate-800 dark:text-slate-200">{{ goal.name }}</td>
+                                <td class="py-2 font-mono text-xs text-slate-500 dark:text-slate-400">
+                                    <span class="mr-1 rounded bg-slate-100 px-1 py-0.5 text-slate-600 dark:bg-slate-700 dark:text-slate-300">{{ goal.match_type }}</span>
+                                    {{ goal.url_pattern }}
+                                </td>
+                                <td class="py-2 text-right tabular-nums text-slate-700 dark:text-slate-300">{{ goal.completions.toLocaleString() }}</td>
+                                <td class="py-2 text-right tabular-nums text-slate-700 dark:text-slate-300">{{ goal.unique_completions.toLocaleString() }}</td>
+                                <td class="py-2 text-right tabular-nums font-medium text-emerald-600 dark:text-emerald-400">{{ goal.conversion_rate }}%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div v-else-if="hasData" class="vm-card flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-800 dark:text-slate-200">Track goal conversions</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Set up URL-based goals to measure conversion rates.</p>
+                </div>
+                <Link :href="route('sites.edit', site.id)" class="vm-btn-secondary text-sm">Set up goals</Link>
+            </div>
         </div>
     </AppLayout>
 </template>

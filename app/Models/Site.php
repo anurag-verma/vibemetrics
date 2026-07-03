@@ -70,6 +70,11 @@ class Site extends Model
         return $this->hasMany(DailyStat::class);
     }
 
+    public function goals(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Goal::class);
+    }
+
     public function isActive(): bool
     {
         return ! $this->is_paused;
