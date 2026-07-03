@@ -201,11 +201,12 @@ class SiteAnalyticsService
         $counts = $this->emptyDateCounts($startDate, $endDate);
 
         if (DB::connection()->getDriverName() !== 'sqlite') {
+            $offsetSeconds = Carbon::now($timezone)->getOffset();
             $rows = DB::table('page_views')
                 ->where('site_id', $siteId)
                 ->where('created_at', '>=', $startDate->copy()->utc())
                 ->where('created_at', '<=', $endDate->copy()->utc())
-                ->selectRaw("DATE(CONVERT_TZ(created_at, 'UTC', ?)) as local_date, COUNT(*) as cnt", [$timezone])
+                ->selectRaw('DATE(created_at + INTERVAL ? SECOND) as local_date, COUNT(*) as cnt', [$offsetSeconds])
                 ->groupBy('local_date')
                 ->pluck('cnt', 'local_date')
                 ->map(fn ($c) => (int) $c)
@@ -244,12 +245,13 @@ class SiteAnalyticsService
         $counts = $this->emptyDateCounts($startDate, $endDate);
 
         if (DB::connection()->getDriverName() !== 'sqlite') {
+            $offsetSeconds = Carbon::now($timezone)->getOffset();
             $fingerprint = AnalyticsSql::visitorFingerprintExpression();
             $rows = DB::table('page_views')
                 ->where('site_id', $siteId)
                 ->where('created_at', '>=', $startDate->copy()->utc())
                 ->where('created_at', '<=', $endDate->copy()->utc())
-                ->selectRaw("DATE(CONVERT_TZ(created_at, 'UTC', ?)) as local_date, COUNT(DISTINCT {$fingerprint}) as cnt", [$timezone])
+                ->selectRaw("DATE(created_at + INTERVAL ? SECOND) as local_date, COUNT(DISTINCT {$fingerprint}) as cnt", [$offsetSeconds])
                 ->groupBy('local_date')
                 ->pluck('cnt', 'local_date')
                 ->map(fn ($c) => (int) $c)
@@ -301,11 +303,12 @@ class SiteAnalyticsService
         $counts = $this->emptyHourCounts($startUtc, $endUtc, $timezone);
 
         if (DB::connection()->getDriverName() !== 'sqlite') {
+            $offsetSeconds = Carbon::now($timezone)->getOffset();
             $sqlCounts = DB::table('page_views')
                 ->where('site_id', $siteId)
                 ->where('created_at', '>=', $startUtc)
                 ->where('created_at', '<=', $endUtc)
-                ->selectRaw("DATE_FORMAT(CONVERT_TZ(created_at, 'UTC', ?), '%Y-%m-%d %H:00') as hour_key, COUNT(*) as cnt", [$timezone])
+                ->selectRaw("DATE_FORMAT(created_at + INTERVAL ? SECOND, '%Y-%m-%d %H:00') as hour_key, COUNT(*) as cnt", [$offsetSeconds])
                 ->groupBy('hour_key')
                 ->pluck('cnt', 'hour_key')
                 ->map(fn ($c) => (int) $c)
@@ -344,12 +347,13 @@ class SiteAnalyticsService
         $counts = $this->emptyHourCounts($startUtc, $endUtc, $timezone);
 
         if (DB::connection()->getDriverName() !== 'sqlite') {
+            $offsetSeconds = Carbon::now($timezone)->getOffset();
             $fingerprint = AnalyticsSql::visitorFingerprintExpression();
             $sqlCounts = DB::table('page_views')
                 ->where('site_id', $siteId)
                 ->where('created_at', '>=', $startUtc)
                 ->where('created_at', '<=', $endUtc)
-                ->selectRaw("DATE_FORMAT(CONVERT_TZ(created_at, 'UTC', ?), '%Y-%m-%d %H:00') as hour_key, COUNT(DISTINCT {$fingerprint}) as cnt", [$timezone])
+                ->selectRaw("DATE_FORMAT(created_at + INTERVAL ? SECOND, '%Y-%m-%d %H:00') as hour_key, COUNT(DISTINCT {$fingerprint}) as cnt", [$offsetSeconds])
                 ->groupBy('hour_key')
                 ->pluck('cnt', 'hour_key')
                 ->map(fn ($c) => (int) $c)
@@ -456,13 +460,14 @@ class SiteAnalyticsService
         }
 
         if (DB::connection()->getDriverName() !== 'sqlite') {
+            $offsetSeconds = Carbon::now($timezone)->getOffset();
             $rows = DB::table('page_views')
                 ->where('site_id', $siteId)
                 ->where('created_at', '>=', $fromUtc)
                 ->where('created_at', '<=', $toUtc)
                 ->selectRaw(
-                    "(DAYOFWEEK(CONVERT_TZ(created_at, 'UTC', ?)) - 1) as dow, HOUR(CONVERT_TZ(created_at, 'UTC', ?)) as h, COUNT(*) as cnt",
-                    [$timezone, $timezone]
+                    '(DAYOFWEEK(created_at + INTERVAL ? SECOND) - 1) as dow, HOUR(created_at + INTERVAL ? SECOND) as h, COUNT(*) as cnt',
+                    [$offsetSeconds, $offsetSeconds]
                 )
                 ->groupBy('dow', 'h')
                 ->get();
