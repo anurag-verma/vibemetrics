@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Services\GeoIpResolver;
 use App\Services\UrlNormalizer;
 use App\Services\UserAgentParser;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -23,11 +24,12 @@ class RecordPageView implements ShouldQueue
     public function __construct(
         public int $siteId,
         public array $payload,
-        public string $country = 'XX',
+        public ?string $country = null,
+        public ?string $ip = null,
         public ?string $userAgent = null,
     ) {}
 
-    public function handle(UserAgentParser $parser, UrlNormalizer $normalizer): void
+    public function handle(UserAgentParser $parser, UrlNormalizer $normalizer, GeoIpResolver $geoIp): void
     {
         $parsed = $parser->parse($this->userAgent);
 
@@ -42,7 +44,8 @@ class RecordPageView implements ShouldQueue
             $visitorId = null;
         }
 
-        $country = strtoupper(substr($this->country, 0, 2));
+        $resolved = $this->country ?? $geoIp->resolveFromIp($this->ip);
+        $country = strtoupper(substr($resolved, 0, 2));
         if ($country === '' || strlen($country) !== 2) {
             $country = 'XX';
         }

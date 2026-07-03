@@ -29,14 +29,20 @@ class SiteAnalyticsService
 
         $metrics = Cache::remember(
             $cacheKey,
-            30,
+            300,
             fn () => $this->buildAggregate($site, $range, $timezone),
         );
 
-        $metrics['live_visitors'] = $this->liveVisitors($site->id);
-        $metrics['last_event_at'] = DB::table('page_views')
-            ->where('site_id', $site->id)
-            ->max('created_at');
+        $metrics['live_visitors'] = Cache::remember(
+            "live:{$site->id}",
+            10,
+            fn () => $this->liveVisitors($site->id)
+        );
+        $metrics['last_event_at'] = Cache::remember(
+            "last_event:{$site->id}",
+            30,
+            fn () => DB::table('page_views')->where('site_id', $site->id)->max('created_at')
+        );
 
         return $metrics;
     }
@@ -194,6 +200,26 @@ class SiteAnalyticsService
     {
         $counts = $this->emptyDateCounts($startDate, $endDate);
 
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            $rows = DB::table('page_views')
+                ->where('site_id', $siteId)
+                ->where('created_at', '>=', $startDate->copy()->utc())
+                ->where('created_at', '<=', $endDate->copy()->utc())
+                ->selectRaw("DATE(CONVERT_TZ(created_at, 'UTC', ?)) as local_date, COUNT(*) as cnt", [$timezone])
+                ->groupBy('local_date')
+                ->pluck('cnt', 'local_date')
+                ->map(fn ($c) => (int) $c)
+                ->all();
+
+            foreach ($rows as $date => $count) {
+                if (array_key_exists($date, $counts)) {
+                    $counts[$date] = $count;
+                }
+            }
+
+            return $counts;
+        }
+
         $rows = DB::table('page_views')
             ->where('site_id', $siteId)
             ->where('created_at', '>=', $startDate->copy()->utc())
@@ -202,7 +228,6 @@ class SiteAnalyticsService
 
         foreach ($rows as $createdAt) {
             $localDate = Carbon::parse($createdAt, 'UTC')->timezone($timezone)->toDateString();
-
             if (isset($counts[$localDate])) {
                 $counts[$localDate]++;
             }
@@ -217,6 +242,27 @@ class SiteAnalyticsService
     private function uniqueVisitorCountsByLocalDate(int $siteId, Carbon $startDate, Carbon $endDate, string $timezone): array
     {
         $counts = $this->emptyDateCounts($startDate, $endDate);
+
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            $fingerprint = AnalyticsSql::visitorFingerprintExpression();
+            $rows = DB::table('page_views')
+                ->where('site_id', $siteId)
+                ->where('created_at', '>=', $startDate->copy()->utc())
+                ->where('created_at', '<=', $endDate->copy()->utc())
+                ->selectRaw("DATE(CONVERT_TZ(created_at, 'UTC', ?)) as local_date, COUNT(DISTINCT {$fingerprint}) as cnt", [$timezone])
+                ->groupBy('local_date')
+                ->pluck('cnt', 'local_date')
+                ->map(fn ($c) => (int) $c)
+                ->all();
+
+            foreach ($rows as $date => $count) {
+                if (array_key_exists($date, $counts)) {
+                    $counts[$date] = $count;
+                }
+            }
+
+            return $counts;
+        }
 
         $rows = DB::table('page_views')
             ->select('created_at', 'visitor_id', 'browser', 'os', 'device')
@@ -254,6 +300,23 @@ class SiteAnalyticsService
     {
         $counts = $this->emptyHourCounts($startUtc, $endUtc, $timezone);
 
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            $sqlCounts = DB::table('page_views')
+                ->where('site_id', $siteId)
+                ->where('created_at', '>=', $startUtc)
+                ->where('created_at', '<=', $endUtc)
+                ->selectRaw("DATE_FORMAT(CONVERT_TZ(created_at, 'UTC', ?), '%Y-%m-%d %H:00') as hour_key, COUNT(*) as cnt", [$timezone])
+                ->groupBy('hour_key')
+                ->pluck('cnt', 'hour_key')
+                ->map(fn ($c) => (int) $c)
+                ->all();
+
+            return collect($counts)
+                ->map(fn (int $count, string $date) => ['date' => $date, 'count' => $sqlCounts[$date] ?? $count])
+                ->values()
+                ->all();
+        }
+
         $rows = DB::table('page_views')
             ->where('site_id', $siteId)
             ->where('created_at', '>=', $startUtc)
@@ -262,7 +325,6 @@ class SiteAnalyticsService
 
         foreach ($rows as $createdAt) {
             $hourKey = Carbon::parse($createdAt, 'UTC')->timezone($timezone)->format('Y-m-d H:00');
-
             if (isset($counts[$hourKey])) {
                 $counts[$hourKey]++;
             }
@@ -280,6 +342,24 @@ class SiteAnalyticsService
     private function uniqueVisitorCountsByHour(int $siteId, Carbon $startUtc, Carbon $endUtc, string $timezone): array
     {
         $counts = $this->emptyHourCounts($startUtc, $endUtc, $timezone);
+
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            $fingerprint = AnalyticsSql::visitorFingerprintExpression();
+            $sqlCounts = DB::table('page_views')
+                ->where('site_id', $siteId)
+                ->where('created_at', '>=', $startUtc)
+                ->where('created_at', '<=', $endUtc)
+                ->selectRaw("DATE_FORMAT(CONVERT_TZ(created_at, 'UTC', ?), '%Y-%m-%d %H:00') as hour_key, COUNT(DISTINCT {$fingerprint}) as cnt", [$timezone])
+                ->groupBy('hour_key')
+                ->pluck('cnt', 'hour_key')
+                ->map(fn ($c) => (int) $c)
+                ->all();
+
+            return collect($counts)
+                ->map(fn (int $count, string $date) => ['date' => $date, 'count' => $sqlCounts[$date] ?? $count])
+                ->values()
+                ->all();
+        }
 
         $rows = DB::table('page_views')
             ->select('created_at', 'visitor_id', 'browser', 'os', 'device')
@@ -373,6 +453,28 @@ class SiteAnalyticsService
             for ($hour = 0; $hour < 24; $hour++) {
                 $grid["{$day}-{$hour}"] = ['day' => $day, 'hour' => $hour, 'count' => 0];
             }
+        }
+
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            $rows = DB::table('page_views')
+                ->where('site_id', $siteId)
+                ->where('created_at', '>=', $fromUtc)
+                ->where('created_at', '<=', $toUtc)
+                ->selectRaw(
+                    "(DAYOFWEEK(CONVERT_TZ(created_at, 'UTC', ?)) - 1) as dow, HOUR(CONVERT_TZ(created_at, 'UTC', ?)) as h, COUNT(*) as cnt",
+                    [$timezone, $timezone]
+                )
+                ->groupBy('dow', 'h')
+                ->get();
+
+            foreach ($rows as $row) {
+                $key = "{$row->dow}-{$row->h}";
+                if (isset($grid[$key])) {
+                    $grid[$key]['count'] = (int) $row->cnt;
+                }
+            }
+
+            return array_values($grid);
         }
 
         $rows = DB::table('page_views')

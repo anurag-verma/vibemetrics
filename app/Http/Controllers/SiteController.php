@@ -8,6 +8,7 @@ use App\Services\SiteLimitService;
 use App\Support\DateFormatter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -56,7 +57,10 @@ class SiteController extends Controller
 
     public function store(StoreSiteRequest $request): RedirectResponse
     {
-        $site = $request->user()->sites()->create($request->validated());
+        $user = $request->user();
+        $site = $user->sites()->create($request->validated());
+
+        Cache::forget("user_sites:{$user->id}");
 
         return redirect()
             ->route('sites.edit', $site)
@@ -67,7 +71,10 @@ class SiteController extends Controller
     {
         $this->authorize('delete', $site);
 
+        $userId = $site->user_id;
         $site->delete();
+
+        Cache::forget("user_sites:{$userId}");
 
         return redirect()->route('sites.index')->with('success', 'Site deleted.');
     }

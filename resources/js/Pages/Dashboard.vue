@@ -101,7 +101,7 @@ onMounted(() => {
         if (document.visibilityState === 'visible') {
             refresh(true);
         }
-    }, 60000);
+    }, 180000);
 });
 
 onUnmounted(() => {
