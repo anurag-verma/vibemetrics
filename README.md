@@ -11,6 +11,16 @@
 
 Privacy-first web analytics built with Laravel 12, Inertia, and Vue 3. Lightweight page-view tracking with no cookies and no IP storage.
 
+## Screenshots
+
+| Dashboard overview | Traffic chart & sources | Goals & custom events |
+| --- | --- | --- |
+| ![Dashboard](screenshots/01-dashboard.png) | ![Traffic](screenshots/02-traffic-sources.png) | ![Goals](screenshots/03-goals-events.png) |
+
+| Site settings & snippet | Admin panel | Landing page |
+| --- | --- | --- |
+| ![Settings](screenshots/04-site-settings.png) | ![Admin](screenshots/05-admin-panel.png) | ![Landing](screenshots/06-landing.png) |
+
 ## Requirements
 
 - PHP 8.2+
