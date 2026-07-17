@@ -3,7 +3,7 @@ import RankList from '@/Components/RankList.vue';
 
 const metrics = [
     { label: 'Views', value: '24,831', change: '+12.4% vs prior 30d', accent: 'text-indigo-600' },
-    { label: 'Visitors', value: '8,412', change: '+8.1%', accent: 'text-emerald-600' },
+    { label: 'Visitors', value: '8,412', change: '+8.1% · privacy-safe estimate', accent: 'text-emerald-600' },
     { label: 'Views today', value: '847', change: '+18 vs yesterday', accent: 'text-amber-600' },
     { label: 'Pages / visitor', value: '2.95', change: '829 avg views/day', accent: 'text-rose-600' },
     { label: 'Live now', value: '14', change: 'Active in last 5 min', accent: 'text-indigo-600' },
@@ -20,6 +20,18 @@ const referrers = [
     { label: 'twitter.com', count: 1893 },
     { label: '(direct)', count: 1247 },
 ];
+
+const trafficBars = [
+    { views: 22, visitors: 6 }, { views: 30, visitors: 8 }, { views: 18, visitors: 5 }, { views: 34, visitors: 9 },
+    { views: 24, visitors: 6 }, { views: 58, visitors: 15 }, { views: 62, visitors: 16 }, { views: 26, visitors: 7 },
+    { views: 32, visitors: 8 }, { views: 38, visitors: 9 }, { views: 42, visitors: 10 }, { views: 34, visitors: 8 },
+    { views: 40, visitors: 9 }, { views: 46, visitors: 11 }, { views: 40, visitors: 10 }, { views: 64, visitors: 17 },
+].map((day, index) => ({
+    viewsX: index * 20 + 2,
+    visitorsX: index * 20 + 10,
+    viewsHeight: day.views * 1.3,
+    visitorsHeight: day.visitors * 1.3,
+}));
 </script>
 
 <template>
@@ -97,41 +109,24 @@ const referrers = [
                         </div>
                     </div>
                     <svg class="mt-1.5 h-20 w-full" viewBox="0 0 320 100" preserveAspectRatio="none" aria-hidden="true">
-                        <defs>
-                            <linearGradient id="heroViewsFill" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stop-color="#6366f1" stop-opacity="0.12" />
-                                <stop offset="100%" stop-color="#6366f1" stop-opacity="0" />
-                            </linearGradient>
-                            <linearGradient id="heroVisitorsFill" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stop-color="#10b981" stop-opacity="0.08" />
-                                <stop offset="100%" stop-color="#10b981" stop-opacity="0" />
-                            </linearGradient>
-                        </defs>
-                        <path
-                            d="M0,80 L20,72 L40,65 L60,58 L80,62 L100,45 L120,50 L140,35 L160,40 L180,28 L200,32 L220,20 L240,25 L260,15 L280,18 L300,10 L320,8 L320,100 L0,100 Z"
-                            fill="url(#heroViewsFill)"
-                        />
-                        <path
-                            d="M0,88 L20,82 L40,78 L60,72 L80,74 L100,62 L120,66 L140,55 L160,58 L180,48 L200,52 L220,42 L240,46 L260,38 L280,40 L300,34 L320,32 L320,100 L0,100 Z"
-                            fill="url(#heroVisitorsFill)"
-                        />
-                        <path
-                            d="M0,80 L20,72 L40,65 L60,58 L80,62 L100,45 L120,50 L140,35 L160,40 L180,28 L200,32 L220,20 L240,25 L260,15 L280,18 L300,10 L320,8"
-                            fill="none"
-                            stroke="#6366f1"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            class="vm-chart-line"
-                        />
-                        <path
-                            d="M0,88 L20,82 L40,78 L60,72 L80,74 L100,62 L120,66 L140,55 L160,58 L180,48 L200,52 L220,42 L240,46 L260,38 L280,40 L300,34 L320,32"
-                            fill="none"
-                            stroke="#10b981"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        />
+                        <g v-for="(bar, index) in trafficBars" :key="index">
+                            <rect
+                                :x="bar.viewsX"
+                                :y="100 - bar.viewsHeight"
+                                width="7"
+                                :height="bar.viewsHeight"
+                                rx="1.5"
+                                fill="#6366f1"
+                            />
+                            <rect
+                                :x="bar.visitorsX"
+                                :y="100 - bar.visitorsHeight"
+                                width="5"
+                                :height="bar.visitorsHeight"
+                                rx="1.5"
+                                fill="#10b981"
+                            />
+                        </g>
                     </svg>
                 </div>
 

@@ -2,7 +2,7 @@
 const csvExports = [
     { label: 'Page views & paths', rows: '24,831', period: 'Last 30 days' },
     { label: 'Referrers & sources', rows: '8,412', period: 'Last 30 days' },
-    { label: 'UTM campaigns', rows: '3,204', period: 'Last 30 days' },
+    { label: 'Goals & custom events', rows: '512', period: 'Last 30 days' },
 ];
 
 const retentionOptions = [
@@ -12,10 +12,10 @@ const retentionOptions = [
 ];
 
 const rollupDays = [
-    { date: '07-06-2026', views: '847', visitors: '312' },
-    { date: '06-06-2026', views: '921', visitors: '338' },
-    { date: '05-06-2026', views: '804', visitors: '291' },
-    { date: '04-06-2026', views: '876', visitors: '305' },
+    { date: '16-07-2026', views: '847', visitors: '312' },
+    { date: '15-07-2026', views: '921', visitors: '338' },
+    { date: '14-07-2026', views: '804', visitors: '291' },
+    { date: '13-07-2026', views: '876', visitors: '305' },
 ];
 </script>
 

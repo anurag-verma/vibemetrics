@@ -58,6 +58,12 @@ const sourceTabs = [
 const activeTab = ref('referrers');
 
 const activeSourceTab = () => sourceTabs.find((tab) => tab.id === activeTab.value) ?? sourceTabs[0];
+
+const customEvents = [
+    { label: 'signup_clicked', count: 80 },
+    { label: 'newsletter_subscribed', count: 33 },
+    { label: 'demo_requested', count: 17 },
+];
 </script>
 
 <template>
@@ -175,6 +181,21 @@ const activeSourceTab = () => sourceTabs.find((tab) => tab.id === activeTab.valu
                         :label-type="activeSourceTab().labelType ?? 'auto'"
                         bare
                     />
+                </div>
+
+                <div class="mt-3 rounded-xl border border-warm-200 bg-white p-3">
+                    <p class="text-xs font-semibold text-warm-800">Custom events</p>
+                    <p class="mt-0.5 text-[10px] text-slate-500">Fire your own events from a few lines of JS — track signups, clicks, conversions.</p>
+                    <ul class="mt-2.5 space-y-1">
+                        <li
+                            v-for="event in customEvents"
+                            :key="event.label"
+                            class="flex items-center justify-between rounded-lg border border-warm-100 bg-paper/60 px-2.5 py-1.5 text-xs"
+                        >
+                            <span class="truncate font-mono text-[11px] text-slate-600">{{ event.label }}</span>
+                            <span class="shrink-0 font-semibold text-warm-800">{{ event.count }}</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>

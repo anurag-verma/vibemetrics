@@ -4,7 +4,7 @@ import { ref } from 'vue';
 
 const metrics = [
     { label: 'Views', value: '24,831', change: '+12.4% vs prior 30d', accent: 'text-indigo-600' },
-    { label: 'Visitors', value: '8,412', change: '+8.1%', accent: 'text-emerald-600' },
+    { label: 'Visitors', value: '8,412', change: '+8.1% · privacy-safe estimate', accent: 'text-emerald-600' },
     { label: 'Views today', value: '847', change: '+18 vs yesterday', accent: 'text-amber-600' },
     { label: 'Pages / visitor', value: '2.95', change: '829 avg views/day', accent: 'text-rose-600' },
     { label: 'Live now', value: '14', change: 'Active in last 5 min', accent: 'text-indigo-600' },
@@ -63,6 +63,23 @@ const activeSourceTab = ref('referrers');
 
 const currentPageTab = () => pageTabs.find((tab) => tab.id === activePageTab.value) ?? pageTabs[0];
 const currentSourceTab = () => sourceTabs.find((tab) => tab.id === activeSourceTab.value) ?? sourceTabs[0];
+
+const goals = [
+    { name: 'Blog reader', pattern: '/blog/', completions: 346, rate: '100%' },
+    { name: 'Pricing page visit', pattern: '/pricing', completions: 166, rate: '100%' },
+];
+
+const trafficBars = [
+    { views: 22, visitors: 6 }, { views: 30, visitors: 8 }, { views: 18, visitors: 5 }, { views: 34, visitors: 9 },
+    { views: 24, visitors: 6 }, { views: 58, visitors: 15 }, { views: 62, visitors: 16 }, { views: 26, visitors: 7 },
+    { views: 32, visitors: 8 }, { views: 38, visitors: 9 }, { views: 42, visitors: 10 }, { views: 34, visitors: 8 },
+    { views: 40, visitors: 9 }, { views: 46, visitors: 11 }, { views: 40, visitors: 10 }, { views: 64, visitors: 17 },
+].map((day, index) => ({
+    viewsX: index * 20 + 2,
+    visitorsX: index * 20 + 10,
+    viewsHeight: day.views * 1.3,
+    visitorsHeight: day.visitors * 1.3,
+}));
 </script>
 
 <template>
@@ -136,41 +153,24 @@ const currentSourceTab = () => sourceTabs.find((tab) => tab.id === activeSourceT
                         </div>
                     </div>
                     <svg class="mt-2 h-24 w-full sm:h-28" viewBox="0 0 320 100" preserveAspectRatio="none" aria-hidden="true">
-                        <defs>
-                            <linearGradient id="insightsViewsFill" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stop-color="#6366f1" stop-opacity="0.12" />
-                                <stop offset="100%" stop-color="#6366f1" stop-opacity="0" />
-                            </linearGradient>
-                            <linearGradient id="insightsVisitorsFill" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stop-color="#10b981" stop-opacity="0.08" />
-                                <stop offset="100%" stop-color="#10b981" stop-opacity="0" />
-                            </linearGradient>
-                        </defs>
-                        <path
-                            d="M0,80 L20,72 L40,65 L60,58 L80,62 L100,45 L120,50 L140,35 L160,40 L180,28 L200,32 L220,20 L240,25 L260,15 L280,18 L300,10 L320,8 L320,100 L0,100 Z"
-                            fill="url(#insightsViewsFill)"
-                        />
-                        <path
-                            d="M0,88 L20,82 L40,78 L60,72 L80,74 L100,62 L120,66 L140,55 L160,58 L180,48 L200,52 L220,42 L240,46 L260,38 L280,40 L300,34 L320,32 L320,100 L0,100 Z"
-                            fill="url(#insightsVisitorsFill)"
-                        />
-                        <path
-                            d="M0,80 L20,72 L40,65 L60,58 L80,62 L100,45 L120,50 L140,35 L160,40 L180,28 L200,32 L220,20 L240,25 L260,15 L280,18 L300,10 L320,8"
-                            fill="none"
-                            stroke="#6366f1"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            class="vm-chart-line"
-                        />
-                        <path
-                            d="M0,88 L20,82 L40,78 L60,72 L80,74 L100,62 L120,66 L140,55 L160,58 L180,48 L200,52 L220,42 L240,46 L260,38 L280,40 L300,34 L320,32"
-                            fill="none"
-                            stroke="#10b981"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        />
+                        <g v-for="(bar, index) in trafficBars" :key="index">
+                            <rect
+                                :x="bar.viewsX"
+                                :y="100 - bar.viewsHeight"
+                                width="7"
+                                :height="bar.viewsHeight"
+                                rx="1.5"
+                                fill="#6366f1"
+                            />
+                            <rect
+                                :x="bar.visitorsX"
+                                :y="100 - bar.visitorsHeight"
+                                width="5"
+                                :height="bar.visitorsHeight"
+                                rx="1.5"
+                                fill="#10b981"
+                            />
+                        </g>
                     </svg>
                 </div>
 
@@ -224,6 +224,26 @@ const currentSourceTab = () => sourceTabs.find((tab) => tab.id === activeSourceT
                             bare
                         />
                     </div>
+                </div>
+
+                <div class="mt-3 rounded-xl border border-warm-200 bg-white p-3">
+                    <div class="flex items-center justify-between gap-2">
+                        <p class="text-xs font-semibold text-warm-800">Goals</p>
+                        <span class="text-[10px] text-slate-400">Conversion tracking</span>
+                    </div>
+                    <ul class="mt-2.5 space-y-1.5">
+                        <li
+                            v-for="goal in goals"
+                            :key="goal.name"
+                            class="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-warm-100 bg-paper/60 px-2.5 py-1.5 text-xs"
+                        >
+                            <div class="flex min-w-0 items-center gap-2">
+                                <span class="truncate font-medium text-warm-800">{{ goal.name }}</span>
+                                <span class="shrink-0 rounded bg-warm-100 px-1.5 py-0.5 font-mono text-[10px] text-slate-500">{{ goal.pattern }}</span>
+                            </div>
+                            <span class="shrink-0 text-[10px] font-medium text-emerald-600">{{ goal.completions }} · {{ goal.rate }}</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
