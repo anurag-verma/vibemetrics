@@ -4,6 +4,8 @@ const complianceChecks = [
     'No IP addresses stored',
     'No cross-site tracking',
     'GDPR-friendly by design',
+    'Privacy-safe visitor estimates',
+    'Session-only fingerprinting',
 ];
 
 const collected = [
@@ -11,6 +13,7 @@ const collected = [
     { label: 'Browser, OS & device', status: 'Derived from UA' },
     { label: 'Country', status: 'From CDN headers' },
     { label: 'UTM parameters', status: 'When present' },
+    { label: 'Custom event names', status: 'Developer-defined' },
 ];
 
 const neverStored = [

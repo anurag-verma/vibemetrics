@@ -11,18 +11,23 @@ export const gridFeatures = [
     { title: 'Multi-site', description: 'Manage multiple properties in one account.', icon: 'sites', color: 'bg-violet-50 text-violet-600' },
     { title: 'Bot filtering', description: 'Automatic bot detection keeps data clean.', icon: 'lock', color: 'bg-emerald-50 text-emerald-600' },
     { title: 'No cookies', description: 'Cookieless tracking that respects visitors.', icon: 'cookie', color: 'bg-sky-50 text-sky-600' },
+    { title: 'Goal tracking', description: 'Define URL-based goals and monitor conversion rates.', icon: 'target', color: 'bg-rose-50 text-rose-600' },
+    { title: 'Custom events', description: 'Track signups, clicks, and conversions from a few lines of JS.', icon: 'event', color: 'bg-violet-50 text-violet-600' },
+    { title: 'Device & browser insights', description: 'Break down traffic by browser, OS, and device type.', icon: 'device', color: 'bg-sky-50 text-sky-600' },
+    { title: 'Location breakdown', description: 'See which countries your visitors come from.', icon: 'location', color: 'bg-amber-50 text-amber-600' },
+    { title: 'Traffic heatmap', description: 'Spot your busiest days and hours at a glance.', icon: 'grid', color: 'bg-indigo-50 text-indigo-600' },
 ];
 
 export const storyFeatures = [
     {
         eyebrow: 'Event tracking',
         title: 'Track every visit',
-        description: 'See page views, SPA route changes, referrers, and UTM campaigns in one place. Bot traffic is filtered automatically so your numbers stay honest.',
+        description: 'See page views, SPA route changes, referrers, and UTM campaigns in one place. Fire custom events for signups, clicks, or conversions, and bot traffic is filtered automatically so your numbers stay honest.',
     },
     {
         eyebrow: 'Dashboard',
         title: 'Deliver clear insights',
-        description: 'Live visitor counts, daily trends, top pages, and referrer breakdowns — everything you need to understand your traffic at a glance.',
+        description: 'Live visitor counts, daily trends, top pages, referrer breakdowns, and goal-based conversion tracking — everything you need to understand your traffic at a glance.',
     },
     {
         eyebrow: 'Compliance',
